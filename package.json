@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "web3": "^4.0.2",
+    "web3-providers-ws": "^4.0.2"
+  }
+}
