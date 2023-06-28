@@ -3,9 +3,6 @@ const { Web3 } = require('web3');
 const providerUrl = 'https://mainnet.infura.io/v3/1c9ccac844a046aba5d3e142f29bf976';
 const web3 = new Web3(providerUrl);
 
-// Contract address to fetch bytecode from
-const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
-
 // Function to read contract bytecode
 async function readContractBytecode(contractAddress) {
   try {
@@ -19,6 +16,9 @@ async function readContractBytecode(contractAddress) {
     console.error('Error reading contract bytecode:', error);
   }
 }
+
+// Contract address to fetch bytecode from
+const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
 
 // Call the function to read the contract bytecode
 readContractBytecode(contractAddress);
