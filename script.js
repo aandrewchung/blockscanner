@@ -11,7 +11,7 @@ async function readContractBytecode() {
   try {
     // Get the contract's code from the blockchain
     const bytecode = await web3.eth.getCode(contractAddress);
-    const first10Chars = bytecode.substring(0, 10);
+    const first10Chars = bytecode.substring(0, 10); //only printing 10 characters for now
 
     // Log the bytecode
     console.log('Contract Bytecode:', first10Chars);
