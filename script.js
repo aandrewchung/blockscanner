@@ -7,7 +7,7 @@ const web3 = new Web3(providerUrl);
 const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
 
 // Function to read contract bytecode
-async function readContractBytecode() {
+async function readContractBytecode(contractAddress) {
   try {
     // Get the contract's code from the blockchain
     const bytecode = await web3.eth.getCode(contractAddress);
@@ -21,4 +21,4 @@ async function readContractBytecode() {
 }
 
 // Call the function to read the contract bytecode
-readContractBytecode();
+readContractBytecode(contractAddress);
