@@ -1,3 +1,5 @@
+//SHIT FILE SHIT FILE
+
 function printStringInTerminal(str) {
     console.log(str);
 }
