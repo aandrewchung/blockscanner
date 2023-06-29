@@ -11,14 +11,26 @@ async function readContractBytecode(contractAddress) {
     const first10Chars = bytecode.substring(0, 10); //only printing 10 characters for now
 
     // Log the bytecode
-    console.log('Contract Bytecode:', first10Chars);
+    console.log('Contract Bytecode:', bytecode);
   } catch (error) {
     console.error('Error reading contract bytecode:', error);
   }
 }
 
-// Contract address to fetch bytecode from
-const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
+async function findAddressInBytecode(inputAddress, bytecode) {
+    try {
+        if (bytecode.indexOf(inputAddress) !== -1) {
+            console.log("The address exists in the bytecode.");
+        } else {
+            console.log("The address does not exist in the bytecode");
+        }
+    } catch (error) {
+        console.error('Error finding user-input addy in byte:', error);
+    }
+}
 
+// Contract address to fetch bytecode from
+// const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
+const contractAddress = "0x0c3ed344effd753a25d3e065e9bc798ee1ebdbac"; //smart contract that was created in new block
 // Call the function to read the contract bytecode
 readContractBytecode(contractAddress);
