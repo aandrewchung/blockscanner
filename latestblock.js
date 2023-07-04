@@ -7,7 +7,7 @@ const chainConfigs = [
   {
     providerUrl: process.env.PROVIDER_URL,
     waitBlocks: 200,
-    startBlock: 17620077 // Specify the desired start block for the chain
+    startBlock: 17621077 // Specify the desired start block for the chain
   }/*,
   {
     providerUrl: process.env.CHAIN2_PROVIDER_URL,
@@ -40,6 +40,8 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       return;
     }
 
+    const startTime = Date.now();
+
     const block = await web3Instances[chainIndex].eth.getBlock(latestBlockNumber);
 
     // Get the transactions from the block
@@ -60,32 +62,41 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       }
     }
 
-    // Log the contract addresses for the chain
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
+
+    // Log the contract addresses and processing time for the chain
     console.log(`Chain ${chainIndex + 1}: Contracts in Block ${latestBlockNumber}:`, blockContractAddresses);
     console.log(`Chain ${chainIndex + 1}: Total Contracts:`, contractAddresses.length);
+    console.log(`Chain ${chainIndex + 1}: Processing Time: ${processingTime}ms`);
+
     contractAddresses.push(...blockContractAddresses);
 
-    // Save block status to JSON file
-    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses.length > 0);
+    // Save block status and processing time to JSON file
+    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses.length > 0, processingTime);
 
   } catch (error) {
     console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
   }
 }
 
-// Function to save block status to the JSON database file
-function saveToDatabase(chainIndex, blockNumber, hasContracts) {
+// Function to save block status and processing time to the JSON database file
+function saveToDatabase(chainIndex, blockNumber, hasContracts, processingTime, contractAddresses) {
   const filePath = `chain${chainIndex + 1}_database.json`;
   const data = loadFromDatabase(chainIndex);
 
   if (data) {
-    data[blockNumber] = hasContracts;
+    data[blockNumber] = {
+      hasContracts,
+      processingTime,
+      contracts: contractAddresses
+    };
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} status saved to database.`);
   }
 }
 
-// Function to load block status from the JSON database file
+// Function to load block status and contract addresses from the JSON database file
 function loadFromDatabase(chainIndex) {
   const filePath = `chain${chainIndex + 1}_database.json`;
 
@@ -96,6 +107,7 @@ function loadFromDatabase(chainIndex) {
 
   return {};
 }
+
 
 // Function to continuously get contracts from the latest block for each chain
 async function continuouslyGetContracts() {
