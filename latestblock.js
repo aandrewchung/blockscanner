@@ -73,30 +73,28 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
     contractAddresses.push(...blockContractAddresses);
 
     // Save block status and processing time to JSON file
-    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses.length > 0, processingTime);
+    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, processingTime);
 
   } catch (error) {
     console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
   }
 }
 
-// Function to save block status and processing time to the JSON database file
-function saveToDatabase(chainIndex, blockNumber, hasContracts, processingTime, contractAddresses) {
+// Function to save contract addresses to the JSON database file
+function saveToDatabase(chainIndex, blockNumber, contractAddresses) {
   const filePath = `chain${chainIndex + 1}_database.json`;
-  const data = loadFromDatabase(chainIndex);
+  let data = loadFromDatabase(chainIndex);
 
-  if (data) {
-    data[blockNumber] = {
-      hasContracts,
-      processingTime,
-      contracts: contractAddresses
-    };
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} status saved to database.`);
+  if (!data) {
+    data = {};
   }
+
+  data[blockNumber] = contractAddresses;
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} contracts saved to database.`);
 }
 
-// Function to load block status and contract addresses from the JSON database file
+// Function to load contract addresses from the JSON database file
 function loadFromDatabase(chainIndex) {
   const filePath = `chain${chainIndex + 1}_database.json`;
 
@@ -105,7 +103,7 @@ function loadFromDatabase(chainIndex) {
     return JSON.parse(data);
   }
 
-  return {};
+  return null;
 }
 
 
