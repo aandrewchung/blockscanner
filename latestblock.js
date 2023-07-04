@@ -7,7 +7,7 @@ const chainConfigs = [
   {
     providerUrl: process.env.PROVIDER_URL,
     waitBlocks: 200,
-    startBlock: 17621077 // Specify the desired start block for the chain
+    startBlock: 17620081 // Specify the desired start block for the chain
   }/*,
   {
     providerUrl: process.env.CHAIN2_PROVIDER_URL,
