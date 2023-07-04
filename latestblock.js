@@ -1,32 +1,46 @@
+const fs = require('fs');
 require('dotenv').config(); // Load environment variables from .env file
-
 const { Web3 } = require('web3');
 
-// Initialize Web3 with your Ethereum node URL
-const providerUrl = process.env.PROVIDER_URL;
-const web3 = new Web3(providerUrl);
+// Array of chain configurations
+const chainConfigs = [
+  {
+    providerUrl: process.env.PROVIDER_URL,
+    waitBlocks: 200,
+    startBlock: 17620077 // Specify the desired start block for the chain
+  }/*,
+  {
+    providerUrl: process.env.CHAIN2_PROVIDER_URL,
+    waitBlocks: 300,
+    startBlock: 123456 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN3_PROVIDER_URL,
+    waitBlocks: 250,
+    startBlock: 789012 // Specify the desired start block for the chain
+  }*/
+  // Add more chain configurations as needed
+];
+
+// Initialize Web3 instances for each chain
+const web3Instances = chainConfigs.map(config => new Web3(config.providerUrl));
 
 // Helper function to delay execution
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/*
-    Using the RPC endpoint only works when you deal with the latest block.
-    It would be most efficient to wait X blocks (ideally depending per chain as some have reorgs like polygon and bnb)
-    so for ex: always start latestBlock - 200
-*/
-// Function to get the contracts created in a specific block
-async function getContractsInBlock(latestBlockNumber, contractAddresses) {
+// Function to get the contracts created in a specific block for a chain
+async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddresses) {
   try {
-    // Get the latest block number if null
-    const blockNumber = latestBlockNumber || 17575860;
+    const { startBlock, waitBlocks } = chainConfigs[chainIndex];
 
-    // Log the latest block number
-    console.log('Latest Block Number:', blockNumber);
+    // Skip if the block is before the start block or within the waitBlocks range
+    if (Number(latestBlockNumber) < startBlock || Number(latestBlockNumber) > startBlock + waitBlocks) {
+      return;
+    }
 
-    // Get the latest block information
-    const block = await web3.eth.getBlock(blockNumber);
+    const block = await web3Instances[chainIndex].eth.getBlock(latestBlockNumber);
 
     // Get the transactions from the block
     const transactions = block.transactions.filter(tx => tx.input !== '0x');
@@ -37,81 +51,101 @@ async function getContractsInBlock(latestBlockNumber, contractAddresses) {
     // Iterate through each transaction
     for (const transactionHash of transactions) {
       // Get the transaction receipt
-      const receipt = await web3.eth.getTransactionReceipt(transactionHash);
+      const receipt = await web3Instances[chainIndex].eth.getTransactionReceipt(transactionHash);
       // Check if the transaction is a contract creation transaction
       if (receipt && receipt.contractAddress) {
-        console.log("YESSIR");
+        console.log(`Chain ${chainIndex + 1}: YESSIR`);
         // Add the contract address to the array
         blockContractAddresses.push(receipt.contractAddress);
       }
     }
 
-    // Log the contract addresses   
-    console.log('Contracts in Block', blockNumber, ':', blockContractAddresses);
-    console.log('Contracts in total:', contractAddresses);
+    // Log the contract addresses for the chain
+    console.log(`Chain ${chainIndex + 1}: Contracts in Block ${latestBlockNumber}:`, blockContractAddresses);
+    console.log(`Chain ${chainIndex + 1}: Total Contracts:`, contractAddresses.length);
     contractAddresses.push(...blockContractAddresses);
+
+    // Save block status to JSON file
+    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses.length > 0);
+
   } catch (error) {
-    console.error('Error getting contracts in block:', error);
+    console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
   }
 }
 
-async function getContractCreationTransactions(latestBlockNumber) {
-  try {
-    // Get the latest block number if null
-    const blockNumber = latestBlockNumber || (await web3.eth.getBlockNumber());
+// Function to save block status to the JSON database file
+function saveToDatabase(chainIndex, blockNumber, hasContracts) {
+  const filePath = `chain${chainIndex + 1}_database.json`;
+  const data = loadFromDatabase(chainIndex);
 
-    // Convert the block number to a hex string
-    const fromBlock = web3.utils.toHex(blockNumber);
-
-    const contractCreationEventSignature = web3.utils.sha3('ContractCreated(address)');
-
-    // Filter all logs to match the contract creation event signature
-    const filterOptions = {
-      fromBlock,
-      toBlock: fromBlock,
-      topics: [contractCreationEventSignature]
-    };
-    const logs = await web3.eth.getPastLogs(filterOptions);
-
-    // Array for storing the contract creation addresses
-    const contractAddresses = logs.map(log => log.address);
-
-    // Log the contract creation transaction hashes
-    if (contractAddresses.length == 0) {
-      process.stdout.write(`\r${blockNumber} is empty...`);
-    } else {
-      process.stdout.write(`\nContract Creation Addresses for ${blockNumber}: ${contractAddresses}`);
-    }
-  } catch (error) {
-    console.error('Error getting contract creation transactions:', error);
+  if (data) {
+    data[blockNumber] = hasContracts;
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} status saved to database.`);
   }
 }
 
-// Function to continuously get contracts from the latest block
-async function contiouslyGetContracts() {
-  let prevBlockNumber = null;
-  const contractAddresses = []
+// Function to load block status from the JSON database file
+function loadFromDatabase(chainIndex) {
+  const filePath = `chain${chainIndex + 1}_database.json`;
+
+  if (fs.existsSync(filePath)) {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  }
+
+  return {};
+}
+
+// Function to continuously get contracts from the latest block for each chain
+async function continuouslyGetContracts() {
+  const contractAddresses = [];
+
   while (true) {
     try {
-      // Get the latest block number
-      const latestBlockNumber = await web3.eth.getBlockNumber();
+      const promises = chainConfigs.map(async (config, i) => {
+        const { providerUrl, waitBlocks, startBlock } = config;
+        const web3Instance = web3Instances[i];
 
-      if (prevBlockNumber != latestBlockNumber) {
-        // Call the function to get the contracts in the latest block
-        await getContractsInBlock(latestBlockNumber, contractAddresses);
-        // await getContractCreationTransactions(latestBlockNumber);
-        prevBlockNumber = latestBlockNumber;
-      }
+        // Load contracts and block status from the database
+        const blockStatus = loadFromDatabase(i);
+        let latestBlockNumber = await web3Instance.eth.getBlockNumber();
+
+        // Set the latest block number to the start block if it is lower
+        if (Number(latestBlockNumber) < startBlock) {
+          latestBlockNumber = startBlock;
+        }
+
+        // Check if all the blocks have been processed since the start
+        const start = startBlock;
+        const end = Number(latestBlockNumber) - waitBlocks + 1;
+        const missingBlockNumbers = [];
+        for (let block = start; block <= end; block++) {
+          if (!blockStatus[block]) { // Check if block is not marked as processed
+            missingBlockNumbers.push(block);
+          }
+        }
+
+        console.log(`Chain ${i + 1}: Missing blocks:`, missingBlockNumbers);
+
+        // Process the missing blocks
+        for (let block = start; block <= end; block++) {
+          if (!blockStatus[block]) { // Check if block is not marked as processed
+            // Call the function to get the contracts in the block for the chain
+            await getContractsInBlock(i, block, contractAddresses);
+          }
+        }
+      });
+
+      await Promise.all(promises);
 
       // Delay for a specific interval (set to 10 seconds)
-      // await delay(1000);
+      await delay(10000);
 
     } catch (error) {
-      const latestBlockNumber = await web3.eth.getBlockNumber();
-
-      console.error(`Error in block ${latestBlockNumber}:`, error);
+      console.error('Error:', error);
     }
   }
 }
 
-contiouslyGetContracts();
+continuouslyGetContracts();
