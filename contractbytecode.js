@@ -32,5 +32,6 @@ async function findAddressInBytecode(inputAddress, bytecode) {
 // Contract address to fetch bytecode from
 // const contractAddress = '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413';
 const contractAddress = "0x0c3ed344effd753a25d3e065e9bc798ee1ebdbac"; //smart contract that was created in new block
+
 // Call the function to read the contract bytecode
 readContractBytecode(contractAddress);
