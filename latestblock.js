@@ -5,7 +5,7 @@ const { Web3 } = require('web3');
 // Array of chain configurations
 const chainConfigs = [
   {
-    providerUrl: process.env.PROVIDER_URL,
+    providerUrl: process.env.CHAIN1_PROVIDER_URL,
     waitBlocks: 200,
     startBlock: 17620081 // Specify the desired start block for the chain
   }/*,
