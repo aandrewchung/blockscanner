@@ -31,53 +31,60 @@ function delay(ms) {
 }
 
 // Function to get the contracts created in a specific block for a chain
+// Function to get the contracts created in a specific block for a chain
 async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddresses) {
-  try {
-    const { startBlock, waitBlocks } = chainConfigs[chainIndex];
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { startBlock, waitBlocks } = chainConfigs[chainIndex];
 
-    // Skip if the block is before the start block or within the waitBlocks range
-    if (Number(latestBlockNumber) < startBlock || Number(latestBlockNumber) > startBlock + waitBlocks) {
-      return;
-    }
-
-    const startTime = Date.now();
-
-    const block = await web3Instances[chainIndex].eth.getBlock(latestBlockNumber);
-
-    // Get the transactions from the block
-    const transactions = block.transactions.filter(tx => tx.input !== '0x');
-
-    // Array to store the contract addresses
-    const blockContractAddresses = [];
-
-    // Iterate through each transaction
-    for (const transactionHash of transactions) {
-      // Get the transaction receipt
-      const receipt = await web3Instances[chainIndex].eth.getTransactionReceipt(transactionHash);
-      // Check if the transaction is a contract creation transaction
-      if (receipt && receipt.contractAddress) {
-        console.log(`Chain ${chainIndex + 1}: YESSIR`);
-        // Add the contract address to the array
-        blockContractAddresses.push(receipt.contractAddress);
+      // Skip if the block is before the start block or within the waitBlocks range
+      if (Number(latestBlockNumber) < startBlock || Number(latestBlockNumber) > startBlock + waitBlocks) {
+        resolve();
+        return;
       }
+
+      const startTime = Date.now();
+
+      const block = await web3Instances[chainIndex].eth.getBlock(latestBlockNumber);
+
+      // Get the transactions from the block
+      const transactions = block.transactions.filter(tx => tx.input !== '0x');
+
+      // Array to store the contract addresses
+      const blockContractAddresses = [];
+
+      // Iterate through each transaction
+      for (const transactionHash of transactions) {
+        // Get the transaction receipt
+        const receipt = await web3Instances[chainIndex].eth.getTransactionReceipt(transactionHash);
+        // Check if the transaction is a contract creation transaction
+        if (receipt && receipt.contractAddress) {
+          console.log(`Chain ${chainIndex + 1}: YESSIR`);
+          // Add the contract address to the array
+          blockContractAddresses.push(receipt.contractAddress);
+        }
+      }
+
+      const endTime = Date.now();
+      const processingTime = endTime - startTime;
+
+      // Log the contract addresses and processing time for the chain
+      console.log(`Chain ${chainIndex + 1}: Contracts in Block ${latestBlockNumber}:`, blockContractAddresses);
+      console.log(`Chain ${chainIndex + 1}: Total Contracts:`, contractAddresses.length);
+      console.log(`Chain ${chainIndex + 1}: Processing Time: ${processingTime}ms`);
+
+      contractAddresses.push(...blockContractAddresses);
+
+      // Save block status and processing time to JSON file
+      saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, processingTime);
+
+      resolve();
+
+    } catch (error) {
+      console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
+      reject(error);
     }
-
-    const endTime = Date.now();
-    const processingTime = endTime - startTime;
-
-    // Log the contract addresses and processing time for the chain
-    console.log(`Chain ${chainIndex + 1}: Contracts in Block ${latestBlockNumber}:`, blockContractAddresses);
-    console.log(`Chain ${chainIndex + 1}: Total Contracts:`, contractAddresses.length);
-    console.log(`Chain ${chainIndex + 1}: Processing Time: ${processingTime}ms`);
-
-    contractAddresses.push(...blockContractAddresses);
-
-    // Save block status and processing time to JSON file
-    saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, processingTime);
-
-  } catch (error) {
-    console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
-  }
+  });
 }
 
 // Function to save contract addresses to the JSON database file
@@ -142,6 +149,7 @@ async function continuouslyGetContracts() {
         for (let block = start; block <= end; block++) {
           if (!blockStatus[block]) { // Check if block is not marked as processed
             // Call the function to get the contracts in the block for the chain
+            // ERROR: this should be a promise as well, since blocks could be processed concurrently
             await getContractsInBlock(i, block, contractAddresses);
           }
         }
@@ -150,7 +158,7 @@ async function continuouslyGetContracts() {
       await Promise.all(promises);
 
       // Delay for a specific interval (set to 10 seconds)
-      await delay(10000);
+      await delay(1000);
 
     } catch (error) {
       console.error('Error:', error);
