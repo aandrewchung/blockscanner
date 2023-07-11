@@ -5,20 +5,20 @@ const { Web3 } = require('web3');
 // Array of chain configurations
 const chainConfigs = [
   {
-    providerUrl: process.env.CHAIN1_PROVIDER_URL,
+    providerUrl: process.env.CHAIN1_PROVIDER_URL, //ethermainnet
     waitBlocks: 200,
-    startBlock: 17620081 // Specify the desired start block for the chain
-  }/*,
-  {
-    providerUrl: process.env.CHAIN2_PROVIDER_URL,
-    waitBlocks: 300,
-    startBlock: 123456 // Specify the desired start block for the chain
+    startBlock: 17667041 // Specify the desired start block for the chain
   },
   {
-    providerUrl: process.env.CHAIN3_PROVIDER_URL,
+    providerUrl: process.env.CHAIN2_PROVIDER_URL, //bsc
+    waitBlocks: 200,
+    startBlock: 29855337 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN3_PROVIDER_URL, //polygon
     waitBlocks: 250,
-    startBlock: 789012 // Specify the desired start block for the chain
-  }*/
+    startBlock: 44930645 // Specify the desired start block for the chain
+  }
   // Add more chain configurations as needed
 ];
 
