@@ -1,8 +1,20 @@
 const fs = require('fs');
 
-// Function to load contract addresses from the JSON database file
-function loadFromDatabase() {
+// Function to load user data from the JSON database file
+function loadUserDatabase() {
     const filePath = `user_database_test.json`;
+  
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(data);
+    }
+  
+    return null;
+}
+
+// Function to load contract addresses from the JSON database file
+function loadChainDatabase(chainIndex) {
+    const filePath = `chain${chainIndex + 1}_database.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -62,12 +74,12 @@ function getAllUniqueAddressesAlt(data) {
     // Convert the set to an array and return the unique addresses
     return Array.from(uniqueAddresses);
 }
-  
+
 
 
 //loading database
-const data = loadFromDatabase();
-console.log(data);
+const userData = loadUserDatabase();
+console.log(userData);
 
 //testing 2 fns
 console.time('Function A');
