@@ -175,6 +175,9 @@ function testCheckChains(userData) {
 }
 
 function test() {
+
+    fs.writeFileSync(`chain_user_database.json`, JSON.stringify({}, null, 2));
+
     //loading database
     const userData = loadUserDatabase();
 
