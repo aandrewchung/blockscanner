@@ -45,7 +45,7 @@ function saveToDatabase(chainIndex, blockNumber, contractAddress, userAddresses)
   }
 
 
-function getUniqueAddressesForChain(data, chainIndex) {
+function getUniqueAddressesForChainA(data, chainIndex) {
     const startTime = Date.now();
     const uniqueAddresses = new Set();
   
@@ -67,31 +67,31 @@ function getUniqueAddressesForChain(data, chainIndex) {
   
     // Convert the set to an array and return the unique addresses
     return Array.from(uniqueAddresses);
-  }
+}
   
 
-function getAllUniqueAddressesAlt(data) {
+function getUniqueAddressesForChainB(data, chainIndex) {
     const startTime = Date.now();
-
     const uniqueAddresses = new Set();
-
-    // Extract all addresses using array manipulation functions
-    const addresses = Object.values(data)
-        .flatMap(chains => Object.values(chains))
-        .flatMap(chain => chain.addresses);
-
-    // Add addresses to the set
-    for (const address of addresses) {
-        uniqueAddresses.add(address);
-    }
-
+  
+    Object.values(data).forEach(chains => {
+      const chainData = chains[chainIndex];
+      if (chainData) {
+        const addresses = chainData.addresses;
+        addresses.forEach(address => uniqueAddresses.add(address));
+      }
+    });
+  
     const endTime = Date.now();
     const processingTime = endTime - startTime;
-    console.log(`Processing Time for Alt: ${processingTime} milliseconds`);
-
+    console.log(`Processing Time for Chain ${chainIndex}: ${processingTime} milliseconds`);
+  
     // Convert the set to an array and return the unique addresses
     return Array.from(uniqueAddresses);
 }
+  
+  
+  
 
 function PABLOFUNCTION(blockAddress, userAddresses) { //for  u poobloo
     return false;
@@ -130,14 +130,15 @@ function testUserAddressesFunctions() {
 
     //testing 2 fns
     console.time('Function A');
-    const array = getUniqueAddressesForChain(userData, 1);
+    const array = getUniqueAddressesForChainA(userData, 1);
     console.timeEnd('Function A');
+
     console.time('Function B');
-    const arrayAlt = getAllUniqueAddressesAlt(userData);
+    const arrayAlt = getUniqueAddressesForChainB(userData, 1);
     console.timeEnd('Function B');
 
     //printing arrays
-    console.log(array);
+    // console.log(array);
     // console.log(arrayAlt);
 }
 testUserAddressesFunctions();
