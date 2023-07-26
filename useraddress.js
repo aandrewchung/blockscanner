@@ -22,7 +22,7 @@ function loadChainDatabase(chainIndex) {
     }
   
     return null;
-  }
+}
 
 function getAllUniqueAddresses(data) {
     const startTime = Date.now();
@@ -75,22 +75,39 @@ function getAllUniqueAddressesAlt(data) {
     return Array.from(uniqueAddresses);
 }
 
+function checkChains(userAddresses) {
+    // Set the start and end chain indices (inclusive)
+    const startChainIndex = 1;
+    const endChainIndex = 5;
+
+    // Loop through the chain indices
+    for (let chainIndex = startChainIndex; chainIndex <= endChainIndex; chainIndex++) {
+        const chainData = loadChainDatabase(chainIndex);
+        for (const blockNumber in chainData) {
+            const addresses = database[blockNumber];
+            if (addresses.length > 0) {
+                compareUserWithChain(userAddresses, chainAddress);
+            }
+        }
+    }
+}
 
 
-//loading database
-const userData = loadUserDatabase();
-console.log(userData);
+function testUserAddressesFunctions() {
+    //loading database
+    const userData = loadUserDatabase();
+    // console.log(userData);
 
-//testing 2 fns
-console.time('Function A');
-const array = getAllUniqueAddresses(data);
-console.timeEnd('Function A');
-console.time('Function B');
-const arrayAlt = getAllUniqueAddressesAlt(data);
-console.timeEnd('Function B');
+    //testing 2 fns
+    console.time('Function A');
+    const array = getAllUniqueAddresses(userData);
+    console.timeEnd('Function A');
+    console.time('Function B');
+    const arrayAlt = getAllUniqueAddressesAlt(userData);
+    console.timeEnd('Function B');
 
-//printing arrays
-// console.log(array);
-// console.log(arrayAlt);
-
-  
+    //printing arrays
+    // console.log(array);
+    // console.log(arrayAlt);
+}
+testUserAddressesFunctions();
