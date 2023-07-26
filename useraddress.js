@@ -75,6 +75,11 @@ function getAllUniqueAddressesAlt(data) {
     return Array.from(uniqueAddresses);
 }
 
+function PABLOFUNCTION() {
+    return false;
+}
+
+
 function checkChains(userAddresses) {
     // Set the start and end chain indices (inclusive)
     const startChainIndex = 1;
