@@ -24,20 +24,37 @@ function loadChainDatabase(chainIndex) {
     return null;
 }
 
-function getAllUniqueAddresses(data) {
-    const startTime = Date.now();
+// Function to save referenced addresses to the JSON database file
+function saveToDatabase(chainIndex, blockNumber, contractAddress, userAddresses) {
+    const filePath = `chain_user_database.json`;
+    let data = loadFromDatabase();
+  
+    if (!data) {
+      data = {};
+    }
+  
+    const chainData = data[chainIndex] || {};
+    const blockData = chainData[blockNumber] || {};
+  
+    blockData[contractAddress] = userAddresses;
+    chainData[blockNumber] = blockData;
+    data[chainIndex] = chainData;
+  
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    console.log(`Chain ${chainIndex}: Block ${blockNumber}, Contract ${contractAddress} saved to database.`);
+  }
 
+
+function getUniqueAddressesForChain(data, chainIndex) {
+    const startTime = Date.now();
     const uniqueAddresses = new Set();
   
-    // Iterate over each user in the database
     for (const userId in data) {
       const chains = data[userId];
-  
-      // Iterate over each chain for the user
-      for (const chainId in chains) {
-        const addresses = chains[chainId].addresses;
-  
-        // Add addresses to the set
+      const chainData = chains[chainIndex];
+      
+      if (chainData) {
+        const addresses = chainData.addresses;
         for (const address of addresses) {
           uniqueAddresses.add(address);
         }
@@ -46,11 +63,12 @@ function getAllUniqueAddresses(data) {
   
     const endTime = Date.now();
     const processingTime = endTime - startTime;
-    console.log(`Processing Time: ${processingTime} milliseconds`);
-
+    console.log(`Processing Time for Chain ${chainIndex}: ${processingTime} milliseconds`);
+  
     // Convert the set to an array and return the unique addresses
     return Array.from(uniqueAddresses);
   }
+  
 
 function getAllUniqueAddressesAlt(data) {
     const startTime = Date.now();
@@ -75,8 +93,16 @@ function getAllUniqueAddressesAlt(data) {
     return Array.from(uniqueAddresses);
 }
 
-function PABLOFUNCTION() {
+function PABLOFUNCTION(blockAddress, userAddresses) { //for  u poobloo
     return false;
+}
+
+function compareUserWithChain(blockAddresses, userAddresses, chainIndex) {
+    for (const blockAddress in blockAddresses) {
+        if (PABLOFUNCTION(blockAddress, userAddresses)) {
+            saveToDatabase(chainIndex, _____, blockAddress, userAddress)
+        }
+    }
 }
 
 
@@ -88,15 +114,14 @@ function checkChains(userAddresses) {
     // Loop through the chain indices
     for (let chainIndex = startChainIndex; chainIndex <= endChainIndex; chainIndex++) {
         const chainData = loadChainDatabase(chainIndex);
-        for (const blockNumber in chainData) {
-            const addresses = database[blockNumber];
-            if (addresses.length > 0) {
-                compareUserWithChain(userAddresses, chainAddress);
+        for (const blockNumber in chainData) { //loop thru each block
+            const blockAddresses = database[blockNumber]; //retrieve addresses
+            if (addresses.length > 0) { 
+                compareUserWithChain(blockAddresses, userAddresses, chainIndex);
             }
         }
     }
 }
-
 
 function testUserAddressesFunctions() {
     //loading database
@@ -105,14 +130,14 @@ function testUserAddressesFunctions() {
 
     //testing 2 fns
     console.time('Function A');
-    const array = getAllUniqueAddresses(userData);
+    const array = getUniqueAddressesForChain(userData, 1);
     console.timeEnd('Function A');
     console.time('Function B');
     const arrayAlt = getAllUniqueAddressesAlt(userData);
     console.timeEnd('Function B');
 
     //printing arrays
-    // console.log(array);
+    console.log(array);
     // console.log(arrayAlt);
 }
 testUserAddressesFunctions();
