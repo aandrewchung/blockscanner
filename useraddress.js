@@ -113,16 +113,6 @@ function getUniqueAddressesForChainB(data, chainIndex) {
   
 ///////////////////////////////////////////
 
-// Function to check contract... ? FOR U POOBLLOOOOOOOOOOO
-function PABLOFUNCTION(blockAddress, userAddresses) {
-    if (Math.random() >= 0.5) { //keeping it random bc idk how ur checking
-        return true;
-    } else {
-        return false;
-    }
-    // return true;
-}
-
 //Function to loop thru each newly created contracted for the block
 function compareUserWithChain(chainIndex, blockNumber, blockAddresses, userAddresses) {
     for (const blockAddress of blockAddresses) { //loop thru newly created contract addy's
