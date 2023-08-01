@@ -1,13 +1,18 @@
 const fs = require('fs');
+const { Web3 } = require('web3');
+const dotenv = require('dotenv');
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Import functions from other files
 const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabase} = require('./databasefns.js');
 const { readContractBytecode } = require('./contractbytecode.js');
 const { getUniqueAddressesForChainA, getUniqueAddressesForChainB } = require('./useraddress.js');
 
 // Initialize Web3 with your Ethereum node URL
-const { Web3 } = require('web3');
-const providerUrl = 'https://mainnet.infura.io/v3/1c9ccac844a046aba5d3e142f29bf976';
+const providerUrl = process.env.CHAIN1_PROVIDER_URL;
 const web3 = new Web3(providerUrl);
-
 
 async function findAddressInBytecode(inputAddress, contractAddress) {
     try {
@@ -74,13 +79,11 @@ function checkChains(userData) {
     }
 }
 
-
 function testCheckChains(userData) {
     checkChains(userData);
 }
 
 function test() {
-
     fs.writeFileSync(`chain_user_database.json`, JSON.stringify({}, null, 2));
 
     //loading database
