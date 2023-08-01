@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Web3 } = require('web3');
 const dotenv = require('dotenv');
+const { isAddress } = require('web3-validator');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -10,26 +11,17 @@ const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabas
 const { readContractBytecode } = require('./contractbytecode.js');
 const { getUniqueAddressesForChainA, getUniqueAddressesForChainB } = require('./useraddress.js');
 
-// Initialize Web3 with your Ethereum node URL
-const providerUrl = process.env.CHAIN1_PROVIDER_URL;
-const web3 = new Web3(providerUrl);
-
 async function findAddressInBytecode(inputAddress, contractAddress) {
     try {
         //checking if valid address (app its deprecated soon this fn tho)
-        if (!web3.utils.isAddress(inputAddress)) {
+        if (!isAddress(inputAddress)) {
             return false;
-        } else if (!web3.utils.isAddress(contractAddress)) {
+        } else if (!isAddress(contractAddress)) {
             return false;
         } 
 
+        //Read bytecode
         const contractBytecode = await readContractBytecode(contractAddress);
-        
-        // Check if the inputAddress starts with '0x' (idk if this is needed w the isAddress from above)
-        if (!inputAddress.startsWith('0x')) {
-            console.error("Error: The input format for the contract is incorrect. It should start with '0x'.");
-            return false;
-        }
 
         // Manipulate the inputAddress to get rid of '0x' and convert it to lowercase
         const manipulatedInputAddress = inputAddress.slice(2).toLowerCase();
