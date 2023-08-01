@@ -1,10 +1,5 @@
 const fs = require('fs');
-const { Web3 } = require('web3');
-const dotenv = require('dotenv');
 const { isAddress } = require('web3-validator');
-
-// Load environment variables from .env file
-dotenv.config();
 
 // Import functions from other files
 const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabase} = require('./databasefns.js');
