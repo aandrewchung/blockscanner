@@ -27,35 +27,10 @@ const referencedAddress = "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6";
 // readContractBytecode(contractAddress);
 
 
-function findAddressInBytecode(inputAddress, contractBytecode) {
-  try {
-    // Check if the inputAddress starts with '0x'
-    if (!inputAddress.startsWith('0x')) {
-      console.error("Error: The input format for the contract is incorrect. It should start with '0x'.");
-      return false;
-    }
-
-    // Manipulate the inputAddress to get rid of '0x' and convert it to lowercase
-    const manipulatedInputAddress = inputAddress.slice(2).toLowerCase();
-
-    // Check if the manipulatedInputAddress exists in contractBytecode
-    if (contractBytecode.includes(manipulatedInputAddress)) {
-      console.log("True, this string exists!");
-      return true;
-    } else {
-      console.log("False, this string does not exist!");
-      return false;
-    }
-  } catch (error) {
-    console.error("An error occurred:", error);
-    return false;
-  }
-}
 
 // Export the functions
 module.exports = {
   readContractBytecode,
-  findAddressInBytecode,
 };
 
 // (async () => {
