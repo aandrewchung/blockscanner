@@ -7,12 +7,12 @@ const chainConfigs = [
   {
     providerUrl: process.env.CHAIN1_PROVIDER_URL, //ethermainnet
     waitBlocks: 200,
-    startBlock: 17667041 // Specify the desired start block for the chain
+    startBlock: 17442127 // Specify the desired start block for the chain
   },
   {
     providerUrl: process.env.CHAIN2_PROVIDER_URL, //bsc
     waitBlocks: 200,
-    startBlock: 29855337 // Specify the desired start block for the chain
+    startBlock: 29855431 // Specify the desired start block for the chain
   },
   {
     providerUrl: process.env.CHAIN3_PROVIDER_URL, //polygon
@@ -46,6 +46,12 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       const startTime = Date.now();
 
       const block = await web3Instances[chainIndex].eth.getBlock(latestBlockNumber);
+
+      if (!block || !block.transactions) { //check if block has transactions
+        console.error(`Chain ${chainIndex + 1}: Block data for block number ${latestBlockNumber} is invalid or does not contain transactions.`);
+        resolve();
+        return;
+      }
 
       // Get the transactions from the block
       const transactions = block.transactions.filter(tx => tx.input !== '0x');
