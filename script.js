@@ -1,5 +1,5 @@
 // Import the functions from contractbytecode.js
-const { readContractBytecode, findAddressInBytecode } = require('./contractbytecode.js');
+const { readContractBytecode } = require('./contractbytecode.js');
 
 // Contract address to fetch bytecode from
 const contractAddress = "0x05770332D4410b6D7f07Fd497E4c00F8F7bFb74A";
