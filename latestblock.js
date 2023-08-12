@@ -162,6 +162,7 @@ async function continuouslyGetContracts() {
 
             // Emit an event with the new contract addresses
             if (newContracts.length > 0) {
+              
               eventEmitter.emit('newContracts', newContracts);
             }
           }
@@ -179,4 +180,10 @@ async function continuouslyGetContracts() {
   }
 }
 
-continuouslyGetContracts();
+// continuouslyGetContracts();
+
+// Export the eventEmitter and continuouslyGetContracts function
+module.exports = {
+  eventEmitter,
+  continuouslyGetContracts
+};
