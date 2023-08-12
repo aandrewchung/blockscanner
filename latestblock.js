@@ -97,7 +97,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
 
 // Function to save contract addresses to the JSON database file
 function saveToDatabase(chainIndex, blockNumber, contractAddresses) {
-  const filePath = `chain${chainIndex + 1}_database.json`;
+  const filePath = `databases/chain${chainIndex + 1}_database.json`;
   let data = loadFromDatabase(chainIndex);
 
   if (!data) {
@@ -111,7 +111,7 @@ function saveToDatabase(chainIndex, blockNumber, contractAddresses) {
 
 // Function to load contract addresses from the JSON database file
 function loadFromDatabase(chainIndex) {
-  const filePath = `chain${chainIndex + 1}_database.json`;
+  const filePath = `databases/chain${chainIndex + 1}_database.json`;
 
   if (fs.existsSync(filePath)) {
     const data = fs.readFileSync(filePath, 'utf8');

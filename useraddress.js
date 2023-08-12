@@ -65,7 +65,7 @@ function testUserAddressesFunctions(userData) {
 
 function test() {
     //resetting file
-    fs.writeFileSync(`chain_user_database.json`, JSON.stringify({}, null, 2));
+    fs.writeFileSync(`databases/chain_user_database.json`, JSON.stringify({}, null, 2));
 
     //loading database
     const userData = loadUserDatabase();

@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Function to load user data from the JSON database file
 function loadUserDatabase() {
-    const filePath = `user_database_test.json`;
+    const filePath = `databases/user_database_test.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -16,7 +16,7 @@ function loadUserDatabase() {
 
 // Function to load contract addresses from the JSON database file
 function loadChainDatabase(chainIndex) {
-    const filePath = `chain${chainIndex}_database.json`;
+    const filePath = `databases/chain${chainIndex}_database.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -28,7 +28,7 @@ function loadChainDatabase(chainIndex) {
 
 // Function to load info where there a user addy is referenced from the JSON database file
 function loadUserChainDatabase() {
-    const filePath = `chain_user_database.json`;
+    const filePath = `databases/chain_user_database.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -40,7 +40,7 @@ function loadUserChainDatabase() {
 
 // Function to save referenced addresses to the JSON database file
 function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userAddress) {
-    const filePath = `chain_user_database.json`;
+    const filePath = `databases/chain_user_database.json`;
     let data = loadUserChainDatabase(chainIndex);
 
     if (!data) {
