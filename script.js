@@ -1,17 +1,15 @@
 const { continuouslyGetContracts, eventEmitter } = require('./latestblock'); 
+const { compareUserWithChain } = require('./compareuserchain');
 
 let eventCounter = 0;
 
 // Attach an event listener for the 'newContracts' event
-eventEmitter.on('newContracts', (newContracts) => {
-  // Call your additional functions here, passing the newContracts as needed
-  // For example:
-  // myAdditionalFunction(newContracts);
-
-  
-
+eventEmitter.on('newContracts', ({ contracts, chainIndex, blockNumber }) => {
   eventCounter++;
-  console.log(`Event emitted ${eventCounter} times. New contracts:`, newContracts);
+  console.log(`Event emitted ${eventCounter} times. New Contracts on chain ${chainIndex + 1}:`, contracts);
+  
+  // Call function to compare user addresses and chains
+  compareUserWithChain(chainIndex+1, blockNumber, contracts);
 });
 
 // Call the continuouslyGetContracts() function
