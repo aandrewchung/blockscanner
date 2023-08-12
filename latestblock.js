@@ -1,6 +1,8 @@
 const fs = require('fs');
 require('dotenv').config(); // Load environment variables from .env file
 const { Web3 } = require('web3');
+const EventEmitter = require('events');
+const eventEmitter = new EventEmitter();
 
 // Array of chain configurations
 const chainConfigs = [
@@ -49,7 +51,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
 
       if (!block || !block.transactions) { //check if block has transactions
         console.error(`Chain ${chainIndex + 1}: Block data for block number ${latestBlockNumber} is invalid or does not contain transactions.`);
-        resolve();
+        resolve([]);
         return;
       }
 
@@ -84,7 +86,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       // Save block status and processing time to JSON file
       saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, processingTime);
 
-      resolve();
+      resolve(blockContractAddresses);
 
     } catch (error) {
       console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
@@ -156,7 +158,12 @@ async function continuouslyGetContracts() {
           if (!blockStatus[block]) { // Check if block is not marked as processed
             // Call the function to get the contracts in the block for the chain
             // ERROR: this should be a promise as well, since blocks could be processed concurrently
-            await getContractsInBlock(i, block, contractAddresses);
+            const newContracts = await getContractsInBlock(i, block, contractAddresses);
+
+            // Emit an event with the new contract addresses
+            if (newContracts.length > 0) {
+              eventEmitter.emit('newContracts', newContracts);
+            }
           }
         }
       });
