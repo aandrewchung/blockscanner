@@ -23,20 +23,25 @@ async function findAddressInBytecode(inputAddress, contractAddress) {
     
         // Check if the manipulatedInputAddress exists in contractBytecode
         if (contractBytecode.includes(manipulatedInputAddress)) {
-            console.log("True, this string exists!");
+            console.log(`True, "${manipulatedInputAddress}" exists!`);
             return true;
         } else {
-            console.log("False, this string does not exist!");
+            console.log(`False, "${manipulatedInputAddress}" does not exist!`);
             return false;
         }
+        
     } catch (error) {
         console.error("An error occurred:", error);
         return false;
     }
   }
 
+
 //Function to loop thru each newly created contracted for the block
-async function compareUserWithChain(chainIndex, blockNumber, blockAddresses, userAddresses) {
+async function compareUserWithChain(chainIndex, blockNumber, blockAddresses) {
+    const userData = loadUserDatabase();
+    const userAddresses = getUniqueAddressesForChainB(userData, chainIndex); // Get unique user addresses based on chain number
+
     for (const blockAddress of blockAddresses) { //loop thru newly created contract addy's
         for (const userAddress of userAddresses) { //loop thru the user addresses
             if (await findAddressInBytecode(userAddress, blockAddress)) {
@@ -47,6 +52,32 @@ async function compareUserWithChain(chainIndex, blockNumber, blockAddresses, use
     }
 }
 
+module.exports = {
+    compareUserWithChain
+};
+
+
+
+
+
+
+
+
+
+
+//////////////////////// Everything below this is usless bc i was doing smth diff////////////////
+
+//Function to loop thru each newly created contracted for the block
+async function compareUserWithChainTRASH(chainIndex, blockNumber, blockAddresses, userAddresses) {
+    for (const blockAddress of blockAddresses) { //loop thru newly created contract addy's
+        for (const userAddress of userAddresses) { //loop thru the user addresses
+            if (await findAddressInBytecode(userAddress, blockAddress)) {
+                console.log("SAVING TO DATABASE");
+                saveToUserChainDatabase(chainIndex, blockNumber, blockAddress, userAddress); //save to database            
+            }
+        }
+    }
+}
 //Function to go thru each chain database
 function checkChains(userData) {
     // Set the start and end chain indices (inclusive of both start and end)
@@ -60,7 +91,7 @@ function checkChains(userData) {
             const blockAddresses = chainData[blockNumber]; // Retrieve newly created contract addresses from each block
             if (blockAddresses.length > 0) {  // Check if addresses even exist in the block
                 console.log(`Checking Chain ${chainIndex}, Block ${blockNumber} with Block Addresses: ${blockAddresses}`);
-                compareUserWithChain(chainIndex, blockNumber, blockAddresses, userAddresses); // Compare
+                compareUserWithChainTRASH(chainIndex, blockNumber, blockAddresses, userAddresses); // Compare
             }
         }
     }
