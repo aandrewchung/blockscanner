@@ -39,7 +39,7 @@ function loadUserChainDatabase() {
 }
 
 // Function to save referenced addresses to the JSON database file
-function saveToDatabase(chainIndex, blockNumber, contractAddress, userAddress) {
+function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userAddress) {
     const filePath = `chain_user_database.json`;
     let data = loadUserChainDatabase(chainIndex);
 
@@ -69,5 +69,5 @@ module.exports = {
     loadUserDatabase,
     loadChainDatabase,
     loadUserChainDatabase,
-    saveToDatabase,
+    saveToUserChainDatabase,
   };
