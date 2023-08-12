@@ -2,7 +2,7 @@ const fs = require('fs');
 const { isAddress } = require('web3-validator');
 
 // Import functions from other files
-const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabase} = require('./databasefns.js');
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./databasefns.js');
 const { readContractBytecode } = require('./contractbytecode.js');
 const { getUniqueAddressesForChainA, getUniqueAddressesForChainB } = require('./useraddress.js');
 
@@ -41,7 +41,7 @@ async function compareUserWithChain(chainIndex, blockNumber, blockAddresses, use
         for (const userAddress of userAddresses) { //loop thru the user addresses
             if (await findAddressInBytecode(userAddress, blockAddress)) {
                 console.log("SAVING TO DATABASE");
-                saveToDatabase(chainIndex, blockNumber, blockAddress, userAddress); //save to database            
+                saveToUserChainDatabase(chainIndex, blockNumber, blockAddress, userAddress); //save to database            
             }
         }
     }
