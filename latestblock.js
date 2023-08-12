@@ -163,7 +163,7 @@ async function continuouslyGetContracts() {
             // Emit an event with the new contract addresses
             if (newContracts.length > 0) {
               
-              eventEmitter.emit('newContracts', newContracts);
+              eventEmitter.emit('newContracts', { contracts: newContracts, chainIndex: i, blockNumber: block });
             }
           }
         }
