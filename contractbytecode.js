@@ -1,6 +1,9 @@
 // Initialize Web3 with your Ethereum node URL
+require('dotenv').config(); // Load environment variables from .env file
 const { Web3 } = require('web3');
-const providerUrl = 'https://mainnet.infura.io/v3/1c9ccac844a046aba5d3e142f29bf976';
+
+// Initialize Web3 with your Ethereum node URL
+const providerUrl = process.env.CHAIN1_PROVIDER_URL;
 const web3 = new Web3(providerUrl);
 
 // Function to read contract bytecode
@@ -32,9 +35,3 @@ const referencedAddress = "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6";
 module.exports = {
   readContractBytecode,
 };
-
-// (async () => {
-//   const contractBytecode = await readContractBytecode(contractAddress);
-//   console.log(contractBytecode);
-//   findAddressInBytecode(referencedAddress, contractBytecode);
-// })();
