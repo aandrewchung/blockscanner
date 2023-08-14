@@ -74,7 +74,7 @@ function test() {
     testUserAddressesFunctions(userData);
 }
 
-test();
+// test();
 
 
 // Export the functions
