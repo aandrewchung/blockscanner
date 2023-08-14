@@ -32,7 +32,41 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Function to get the contracts created in a specific block for a chain
+// Function to save contract addresses to the JSON database file
+function saveToDatabase(chainIndex, blockNumber, contractAddresses, txHashAddresses) {
+  const filePath = `databases/chain${chainIndex + 1}_database.json`;
+  let data = loadFromDatabase(chainIndex);
+
+  if (!data) {
+    data = {};
+  }
+
+  if (!data[blockNumber]) {
+    data[blockNumber] = {};
+  }
+
+  for (let i = 0; i < contractAddresses.length; i++) {
+    const contractAddress = contractAddresses[i];
+    const txHash = txHashAddresses[i];
+    data[blockNumber][contractAddress] = txHash;
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} contracts saved to database.`);
+}
+
+// Function to load contract addresses from the JSON database file
+function loadFromDatabase(chainIndex) {
+  const filePath = `databases/chain${chainIndex + 1}_database.json`;
+
+  if (fs.existsSync(filePath)) {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  }
+
+  return null;
+}
+
 // Function to get the contracts created in a specific block for a chain
 async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddresses) {
   return new Promise(async (resolve, reject) => {
@@ -60,6 +94,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
 
       // Array to store the contract addresses
       const blockContractAddresses = [];
+      const txHashAddresses = [];
 
       // Iterate through each transaction
       for (const transactionHash of transactions) {
@@ -70,6 +105,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
           console.log(`Chain ${chainIndex + 1}: YESSIR`);
           // Add the contract address to the array
           blockContractAddresses.push(receipt.contractAddress);
+          txHashAddresses.push(transactionHash);
         }
       }
 
@@ -84,7 +120,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       contractAddresses.push(...blockContractAddresses);
 
       // Save block status and processing time to JSON file
-      saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, processingTime);
+      saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, txHashAddresses, processingTime);
 
       resolve(blockContractAddresses);
 
@@ -94,33 +130,6 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
     }
   });
 }
-
-// Function to save contract addresses to the JSON database file
-function saveToDatabase(chainIndex, blockNumber, contractAddresses) {
-  const filePath = `databases/chain${chainIndex + 1}_database.json`;
-  let data = loadFromDatabase(chainIndex);
-
-  if (!data) {
-    data = {};
-  }
-
-  data[blockNumber] = contractAddresses;
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} contracts saved to database.`);
-}
-
-// Function to load contract addresses from the JSON database file
-function loadFromDatabase(chainIndex) {
-  const filePath = `databases/chain${chainIndex + 1}_database.json`;
-
-  if (fs.existsSync(filePath)) {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  }
-
-  return null;
-}
-
 
 // Function to continuously get contracts from the latest block for each chain
 async function continuouslyGetContracts() {
