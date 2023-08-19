@@ -41,7 +41,7 @@ function loadUserChainDatabase() {
 // Function to save referenced addresses to the JSON database file
 function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userAddress) {
     const filePath = `databases/chain_user_database.json`;
-    let data = loadUserChainDatabase(chainIndex);
+    let data = loadUserChainDatabase();
 
     if (!data) {
         data = {};
