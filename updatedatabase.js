@@ -13,7 +13,7 @@ function loadUserDatabase() {
     return null;
 }
 
-function validateInputs(userID, chainID, addressses) {
+function validateInputs(userID, chainID, addresses) {
     const parsedUserID = parseInt(userID);
     const parsedChainID = parseInt(chainID);
 
@@ -33,7 +33,7 @@ function validateInputs(userID, chainID, addressses) {
 
 // Function to save referenced addresses to the JSON database file
 function saveToUser(userID, chainID, addresses) {
-    if (!validateUserIDChainIDAndAddresses(userID, chainID, addresses)) { //validating inputs
+    if (!validateInputs(userID, chainID, addresses)) { //validating inputs
         console.log("Invalid userID, chainID, or addresses.");
         return;
     }
