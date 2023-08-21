@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { isAddress } = require('web3-validator');
 
 // Function to load user data from the JSON database file
 function loadUserDatabase() {
@@ -12,8 +13,31 @@ function loadUserDatabase() {
     return null;
 }
 
+function validateInputs(userID, chainID, addressses) {
+    const parsedUserID = parseInt(userID);
+    const parsedChainID = parseInt(chainID);
+
+    if (isNaN(parsedUserID) || isNaN(parsedChainID)) {
+        return false; // Either userID or chainID couldn't be parsed as integers
+    }
+
+    // Validate addresses using web3
+    for (const address of addresses) {
+        if (!isAddress(address)) {
+            return false; // Invalid address found
+        }
+    }
+
+    return true; // Both userID, chainID, and addresses are valid
+}
+
 // Function to save referenced addresses to the JSON database file
 function saveToUser(userID, chainID, addresses) {
+    if (!validateUserIDChainIDAndAddresses(userID, chainID, addresses)) { //validating inputs
+        console.log("Invalid userID, chainID, or addresses.");
+        return;
+    }
+
     const filePath = `databases/user_database_test.json`;
     let data = loadUserDatabase();
 
