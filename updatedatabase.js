@@ -24,6 +24,7 @@ function validateInputs(userID, chainID, addresses) {
     // Validate addresses using web3
     for (const address of addresses) {
         if (!isAddress(address)) {
+            console.log("Invalid addresses bud");
             return false; // Invalid address found
         }
     }
@@ -33,9 +34,10 @@ function validateInputs(userID, chainID, addresses) {
 
 // Function to save referenced addresses to the JSON database file
 function saveToUser(userID, chainID, addresses) {
-    if (!validateInputs(userID, chainID, addresses)) { //validating inputs
-        console.log("Invalid userID, chainID, or addresses.");
-        return;
+    if (!validateInputs(userID, chainID, addresses)) {
+        const errorMessage = "Invalid userID, chainID, or addresses.";
+        console.log(errorMessage); // Log the error message to the console
+        return { error: true, message: errorMessage };
     }
 
     const filePath = `databases/user_database_test.json`;
@@ -58,6 +60,8 @@ function saveToUser(userID, chainID, addresses) {
     data[userID] = userData;
 
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+    return { error: false }; // No error occurred
 }
 
 
@@ -69,9 +73,13 @@ const addressesToAdd = [
     "0xtest2",
     "0xtest3",
     "0xtest4",
-    "0x10030"
+    "0x10030",
+    "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6"
 ];
 
 // Add addresses to the user's chain
-saveToUser(userId, chainId, addressesToAdd);
+// saveToUser(userId, chainId, addressesToAdd);
 
+module.exports = {
+    saveToUser
+};
