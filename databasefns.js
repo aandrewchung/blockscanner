@@ -38,7 +38,6 @@ function loadUserChainDatabase() {
     return null;
 }
 
-// Function to save referenced addresses to the JSON database file
 function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userAddress) {
     const filePath = `databases/chain_user_database.json`;
     let data = loadUserChainDatabase();
@@ -51,10 +50,11 @@ function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userA
     const blockData = chainData[blockNumber] || {};
 
     if (Array.isArray(blockData[contractAddress])) {
-        // If the contractAddress exists and is an array, push the new userAddress to the existing array
-        blockData[contractAddress].push(userAddress);
+        // Check if the userAddress is not already in the array
+        if (!blockData[contractAddress].includes(userAddress)) {
+            blockData[contractAddress].push(userAddress);
+        }
     } else {
-        // If the contractAddress doesn't exist or is not an array, create a new array with the userAddress
         blockData[contractAddress] = [userAddress];
     }
 
@@ -63,6 +63,7 @@ function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userA
 
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
+
 
 // Export the functions
 module.exports = {
