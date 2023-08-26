@@ -14,6 +14,11 @@ const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserCha
 const { readContractBytecode } = require('./contractbytecode.js');
 const { getUniqueAddressesForChainA, getUniqueAddressesForChainB } = require('./useraddress.js');   
 
+// Import EventEmitter & create event emitter instance
+const { EventEmitter } = require('events');
+const logEmitter = new EventEmitter();
+
+
 async function findAddressInBytecode(inputAddress, contractAddress) {
     try {
         //checking if valid address (app its deprecated soon this fn tho)
@@ -71,31 +76,26 @@ async function printConsoleLog(chainIndex, blockNumber, contractAddress, inputAd
         const creationTime = new Date(Number(block.timestamp) * 1000); // Convert Unix timestamp to human-readable date
         const etherscanBaseUrl = "https://etherscan.io";
 
-        const logMessage = `
-            Contract Address: ${contractAddress}
-            Input Address: ${inputAddress}
-            Chain Index: ${chainIndex}
-            Block Number: ${blockNumber}
-            Transaction Hash: ${transactionHash}
-            Creation Time: ${creationTime.toISOString()} (${creationTime.toLocaleString()})
-            Transaction Link: ${etherscanBaseUrl}/tx/${transactionHash}
-        `;
-
-        console.log(logMessage);
+        const logMessage = "Contract Address: " + contractAddress +
+        "\n\nInput Address: " + inputAddress +
+        "\n\nChain Index: " + chainIndex +
+        "\n\nBlock Number: " + blockNumber +
+        "\n\nTransaction Hash: " + transactionHash +
+        "\n\nCreation Time: " + creationTime.toISOString() + " (" + creationTime.toLocaleString() + ")" +
+        "\n\nTransaction Link: " + etherscanBaseUrl + "/tx/" + transactionHash;
+    
+        // console.log(logMessage);
+        // Emit an event with the log message
+        logEmitter.emit('logMessage', logMessage);
     } catch (error) {
         console.error("Error fetching block details:", error);
     }
 }
 
-// // Example usage
-// const chainIndex = 1;
-// const blockNumber = "17442128";
-// const contractAddress = "0x05770332d4410b6d7f07fd497e4c00f8f7bfb74a";
-// const inputAddress = "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6";
-// printConsoleLog(chainIndex, blockNumber, contractAddress, inputAddress);
-
 //Function to loop thru each newly created contracted for the block
 async function compareUserWithChain(chainIndex, blockNumber, blockAddresses) {
+    console.log("Comparing user chains....")
+
     const userData = loadUserDatabase();
     const userAddresses = getUniqueAddressesForChainB(userData, chainIndex); // Get unique user addresses based on chain number
 
@@ -110,15 +110,21 @@ async function compareUserWithChain(chainIndex, blockNumber, blockAddresses) {
 }
 
 module.exports = {
-    compareUserWithChain
+    logEmitter,
+    compareUserWithChain,
+    // ... (other exported functions)
 };
 
 
 
 
 
-
-
+// // Example usage
+// const chainIndex = 1;
+// const blockNumber = "17442128";
+// const contractAddress = "0x05770332d4410b6d7f07fd497e4c00f8f7bfb74a";
+// const inputAddress = "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6";
+// printConsoleLog(chainIndex, blockNumber, contractAddress, inputAddress);
 
 
 
