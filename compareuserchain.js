@@ -86,7 +86,7 @@ async function printConsoleLog(chainIndex, blockNumber, contractAddress, inputAd
     
         // console.log(logMessage);
         // Emit an event with the log message
-        logEmitter.emit('logMessage', logMessage);
+        logEmitter.emit('logMessage', { logMessage, chainIndex, inputAddress });
     } catch (error) {
         console.error("Error fetching block details:", error);
     }

@@ -23,17 +23,19 @@ eventEmitter.on('newContracts', ({ contracts, chainIndex, blockNumber }) => {
 });
 
 // Attach an event listener for the 'logMessage' event
-logEmitter.on('logMessage', (logMessage) => {
+logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
     // Read the user database from the file
     let userDatabase = require('./databases/user_database_test.json');
     
-    // Extract all user IDs (which are keys in the user database)
-    const userIDs = Object.keys(userDatabase);
-    
-    // Iterate through user IDs and send the log message to each user
-    userIDs.forEach(userID => {
-        bot.sendMessage(userID, logMessage);
-    });
+    // Iterate through user IDs and send the log message to users with the specified inputAddress and chainIndex
+    for (const userID in userDatabase) {
+        const userData = userDatabase[userID];
+        
+        if (userData && userData[chainIndex] && userData[chainIndex].addresses && userData[chainIndex].addresses.includes(inputAddress)) {
+            console.log("sending to this user: ",  userID);
+            bot.sendMessage(userID, logMessage);
+        }
+    }
 });
 
 // Command: /start
