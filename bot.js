@@ -5,7 +5,8 @@ const { compareUserWithChain, logEmitter } = require('./compareuserchain');
 const fs = require('fs');
 
 const TelegramBot = require('node-telegram-bot-api');
-const token = 'API_TOKEN';
+require('dotenv').config(); // Load environment variables from .env file
+const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 let eventCounter = 0;
