@@ -1,16 +1,16 @@
-const { saveToUser } = require('./updatedatabase');
+const { saveToUser, removeFromUser } = require('./updatedatabase');
 const { continuouslyGetContracts, eventEmitter } = require('./latestblock'); 
 const { compareUserWithChain, logEmitter } = require('./compareuserchain'); 
 
 const fs = require('fs');
 
+//Setting up telegram bot
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config(); // Load environment variables from .env file
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 let eventCounter = 0;
-
 
 // Attach an event listener for the 'newContracts' event
 eventEmitter.on('newContracts', ({ contracts, chainIndex, blockNumber }) => {
@@ -91,6 +91,40 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
     bot.sendMessage(chatId, `Added ${addresses.length} addresses to chain ${chainName}`);
   }
 });
+
+
+// Command: /removeaddress [chain_name] [address1] [address2] ...
+bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const chainName = match[1].toLowerCase(); // Convert chain name to lowercase
+    const addresses = match[2].split(' ');
+
+    // Map chain names to their corresponding IDs
+    const chainMappings = {
+        ethereum: 1,
+        bsc: 2,
+        polygon: 3
+        // Add more chain names as needed
+    };
+
+    if (!chainMappings.hasOwnProperty(chainName)) {
+        bot.sendMessage(chatId, 'Invalid chain name.');
+        return;
+    }
+
+    const chainId = chainMappings[chainName];
+
+    // Call the removeAddressesFromUser function to remove the addresses
+    const result = removeFromUser(msg.from.id.toString(), chainId, addresses);
+
+    if (result.error) {
+        bot.sendMessage(chatId, result.message); // Send the error message to the user
+    } else {
+        bot.sendMessage(chatId, `Removed ${addresses.length} addresses from chain ${chainName}`);
+    }
+});
+  
+
 
 // General message handler
 bot.on('message', (msg) => {
