@@ -64,6 +64,38 @@ function saveToUser(userID, chainID, addresses) {
     return { error: false }; // No error occurred
 }
 
+// Function to remove addresses from the JSON database file
+function removeFromUser(userID, chainID, addresses) {
+    if (!validateInputs(userID, chainID, addresses)) {
+        const errorMessage = "Invalid userID, chainID, or addresses.";
+        console.log(errorMessage); // Log the error message to the console
+        return { error: true, message: errorMessage };
+    }
+
+    const filePath = `databases/user_database_test.json`;
+    let data = loadUserDatabase();
+
+    if (!data) {
+        data = {};
+    }
+
+    const userData = data[userID] || {};
+    const chainData = userData[chainID] || {};
+
+    chainData.addresses = chainData.addresses || [];
+
+    // Remove addresses from the chain's addresses array
+    chainData.addresses = chainData.addresses.filter(address => !addresses.includes(address));
+    
+    userData[chainID] = chainData;
+    data[userID] = userData;
+
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+    return { error: false }; // No error occurred
+}
+
+
 
 // Example usage
 const userId = "1";
@@ -78,8 +110,9 @@ const addressesToAdd = [
 ];
 
 // Add addresses to the user's chain
-// saveToUser(userId, chainId, addressesToAdd);
+// removeFromUser(userId, chainId, addressesToAdd);
 
 module.exports = {
-    saveToUser
+    saveToUser,
+    removeFromUser
 };
