@@ -70,7 +70,7 @@ function validateInputs(userID, chainID, addresses) {
 }
 
 
-// ------------------- Database Functions -------------------
+// ------------------- User Database Functions -------------------
 
 /**
  * Saves user inputted addresses to the user database.
@@ -155,6 +155,58 @@ function removeFromUser(userID, chainID, addresses) {
     return { error: false }; // No error occurred
 }
 
+// ------------------- User Database Functions -------------------
+/**
+ * Adds a new user entry to the user database based on the provided user ID.
+ *
+ * @param {string} userID - The user's ID to be added.
+ * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
+ */
+function addUser(userID) {
+    const filePath = `databases/user_database_test.json`;
+    let data = loadUserDatabase();
+
+    if (!data) {
+        data = {};
+    }
+
+    if (!data[userID]) {
+        data[userID] = {};
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        return { error: false }; // No error occurred
+    } else {
+        const errorMessage = `User ID ${userID} already exists in the database.`;
+        console.log(errorMessage); // Log the error message to the console
+        return { error: true, message: errorMessage };
+    }
+}
+
+/**
+ * Removes an entire user entry from the user database based on the provided user ID.
+ *
+ * @param {string} userID - The user's ID to be removed.
+ * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
+ */
+function removeUser(userID) {
+    const filePath = `databases/user_database_test.json`;
+    let data = loadUserDatabase();
+
+    if (!data) {
+        data = {};
+    }
+
+    if (data[userID]) {
+        delete data[userID];
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        return { error: false }; // No error occurred
+    } else {
+        const errorMessage = `User ID ${userID} not found in the database.`;
+        console.log(errorMessage); // Log the error message to the console
+        return { error: true, message: errorMessage };
+    }
+}
+
+
 
 
 // ------------------- Test -------------------
@@ -174,10 +226,14 @@ const addressesToAdd = [
 // Add addresses to the user's chain
 // removeFromUser(userId, chainId, addressesToAdd);
 
+// addUser(5);
+// removeUser(5);
 
 // ------------------- Module Exports -------------------
 
 module.exports = {
     saveToUser,
-    removeFromUser
+    removeFromUser,
+    addUser,
+    removeUser
 };

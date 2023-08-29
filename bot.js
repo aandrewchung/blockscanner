@@ -1,6 +1,6 @@
 // ------------------ Import Functions From Other Files -------------------
 
-const { saveToUser, removeFromUser } = require('./updatedatabase');
+const { saveToUser, removeFromUser, addUser, removeUser } = require('./updatedatabase');
 const { continuouslyGetContracts, eventEmitter } = require('./latestblock'); 
 const { compareUserWithChain, logEmitter } = require('./compareuserchain'); 
 
@@ -18,6 +18,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 // ------------------- Event Listeners -------------------
 
+//from script.js fie
 let eventCounter = 0;
 
 // Attach an event listener for the 'newContracts' event
@@ -63,13 +64,6 @@ bot.onText(/\/start/, (msg) => {
     fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
     
     bot.sendMessage(chatId, 'Welcome! Your chat ID has been stored.');
-});
-
-// Command: /echo [whatever]
-bot.onText(/\/echo (.+)/, (msg, match) => {
-  const chatId = msg.chat.id;
-  const resp = match[1];
-  bot.sendMessage(chatId, resp);
 });
 
 // Command: /addaddress [chain_name] [address1] [address2] ...
@@ -134,6 +128,54 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
     }
 });
   
+
+const adminChatIDs = ['5679047475', 'admin_chat_id_2', /* ... */];
+
+// Command: /adduser [userID]
+bot.onText(/\/adduser (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+
+    // Check if the chat ID is included in the adminChatIDs array
+    if (adminChatIDs.includes(chatId.toString())) {
+        const userId = match[1];
+
+        // Call the addUser function to add the user
+        const result = addUser(userId);
+
+        if (result.error) {
+            bot.sendMessage(chatId, result.message); // Send the error message to the admin
+        } else {
+            bot.sendMessage(chatId, `User ${userId} added successfully.`);
+        }
+    } else {
+        bot.sendMessage(chatId, 'You are not authorized to use this command.');
+    }
+});
+
+// Command: /removeuser [userID]
+bot.onText(/\/removeuser (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+
+    // Check if the chat ID is included in the adminChatIDs array
+    if (adminChatIDs.includes(chatId.toString())) {
+        const userId = match[1];
+
+        // Call the removeUser function to remove the user
+        const result = removeUser(userId);
+
+        if (result.error) {
+            bot.sendMessage(chatId, result.message); // Send the error message to the admin
+        } else {
+            bot.sendMessage(chatId, `User ${userId} removed successfully.`);
+        }
+    } else {
+        bot.sendMessage(chatId, 'You are not authorized to use this command.');
+    }
+});
+
+
+
+
 // General message handler
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
