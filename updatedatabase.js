@@ -13,29 +13,56 @@ function loadUserDatabase() {
     return null;
 }
 
-function validateInputs(userID, chainID, addresses) {
+function validateIDs(userID, chainID) {
     const parsedUserID = parseInt(userID);
     const parsedChainID = parseInt(chainID);
+    
+    const errors = [];
 
-    if (isNaN(parsedUserID) || isNaN(parsedChainID)) {
-        return false; // Either userID or chainID couldn't be parsed as integers
+    if (isNaN(parsedUserID)) {
+        errors.push(`Invalid userID: ${parsedUserID}`);
+
     }
+
+    if (isNaN(parsedChainID)) {
+        errors.push(`Invalid chainID: ${parsedChainID}`);
+    }
+
+    return errors;
+}
+
+function validateAddresses(addresses) {
+    const errors = []
 
     // Validate addresses using web3
     for (const address of addresses) {
         if (!isAddress(address)) {
-            console.log("Invalid addresses bud");
-            return false; // Invalid address found
+            errors.push(`Invalid address: ${address}`);
         }
     }
 
-    return true; // Both userID, chainID, and addresses are valid
+    return errors;
+}
+
+function validateInputs(userID, chainID, addresses) {
+    const validationErrors = [...validateIDs(userID, chainID), ...validateAddresses(addresses)];
+
+    if (validationErrors.length > 0) {
+        const errorMessage = "Error with your inputs:\n\n" + validationErrors.join("\n");
+        console.log(errorMessage); // Log the error message to the console
+        return { error: true, message: errorMessage };
+    }
+
+    return { error: false }; // Both userID, chainID, and addresses are valid
 }
 
 // Function to save referenced addresses to the JSON database file
 function saveToUser(userID, chainID, addresses) {
-    if (!validateInputs(userID, chainID, addresses)) {
-        const errorMessage = "Invalid userID, chainID, or addresses.";
+    const validationResult = validateInputs(userID, chainID, addresses);
+
+    if (validationResult.error) {
+        // Use the error message from the validationResult
+        const errorMessage = validationResult.message;
         console.log(errorMessage); // Log the error message to the console
         return { error: true, message: errorMessage };
     }
@@ -66,8 +93,11 @@ function saveToUser(userID, chainID, addresses) {
 
 // Function to remove addresses from the JSON database file
 function removeFromUser(userID, chainID, addresses) {
-    if (!validateInputs(userID, chainID, addresses)) {
-        const errorMessage = "Invalid userID, chainID, or addresses.";
+    const validationResult = validateInputs(userID, chainID, addresses);
+
+    if (validationResult.error) {
+        // Use the error message from the validationResult
+        const errorMessage = validationResult.message;
         console.log(errorMessage); // Log the error message to the console
         return { error: true, message: errorMessage };
     }

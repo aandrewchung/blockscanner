@@ -76,7 +76,7 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
   };
 
   if (!chainMappings.hasOwnProperty(chainName)) {
-    bot.sendMessage(chatId, 'Invalid chain name.');
+    bot.sendMessage(chatId, `Invalid chain name: ${chainName}`);
     return;
   }
 
@@ -133,4 +133,4 @@ bot.on('message', (msg) => {
 });
 
 // Call the continuouslyGetContracts() function
-continuouslyGetContracts();
+// continuouslyGetContracts();
