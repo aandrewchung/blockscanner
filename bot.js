@@ -1,6 +1,11 @@
+// ------------------ Import Functions From Other Files -------------------
+
 const { saveToUser, removeFromUser } = require('./updatedatabase');
 const { continuouslyGetContracts, eventEmitter } = require('./latestblock'); 
 const { compareUserWithChain, logEmitter } = require('./compareuserchain'); 
+
+
+// ------------------- Imports -------------------
 
 const fs = require('fs');
 
@@ -9,6 +14,9 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config(); // Load environment variables from .env file
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
+
+
+// ------------------- Event Listeners -------------------
 
 let eventCounter = 0;
 
@@ -37,6 +45,9 @@ logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
         }
     }
 });
+
+
+// ------------------- Command Handlers -------------------
 
 // Command: /start
 bot.onText(/\/start/, (msg) => {
@@ -92,7 +103,6 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
   }
 });
 
-
 // Command: /removeaddress [chain_name] [address1] [address2] ...
 bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
@@ -124,13 +134,14 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
     }
 });
   
-
-
 // General message handler
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'Received your message');
 });
+
+
+// ------------------- Continously Run Backend Fns -------------------
 
 // Call the continuouslyGetContracts() function
 // continuouslyGetContracts();
