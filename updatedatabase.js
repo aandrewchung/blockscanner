@@ -1,18 +1,18 @@
+// ------------------- Imports -------------------
+
 const fs = require('fs');
 const { isAddress } = require('web3-validator');
+const {loadUserDatabase} = require('./databasefns.js');
 
-// Function to load user data from the JSON database file
-function loadUserDatabase() {
-    const filePath = `databases/user_database_test.json`;
-  
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(data);
-    }
-  
-    return null;
-}
+// ------------------- Validation Functions -------------------
 
+/**
+ * Validates user and chain IDs.
+ *
+ * @param {string} userID - The user's ID
+ * @param {string} chainID - The chain's ID
+ * @returns {string[]} An array of error messages if validation fails, otherwise an empty array.
+ */
 function validateIDs(userID, chainID) {
     const parsedUserID = parseInt(userID);
     const parsedChainID = parseInt(chainID);
@@ -21,7 +21,6 @@ function validateIDs(userID, chainID) {
 
     if (isNaN(parsedUserID)) {
         errors.push(`Invalid userID: ${parsedUserID}`);
-
     }
 
     if (isNaN(parsedChainID)) {
@@ -31,6 +30,12 @@ function validateIDs(userID, chainID) {
     return errors;
 }
 
+/**
+ * Validates contract addresses using web3-validator.
+ *
+ * @param {string[]} addresses - An array of user inputted contract addresses
+ * @returns {string[]} An array of error messages if validation fails, otherwise an empty array.
+ */
 function validateAddresses(addresses) {
     const errors = []
 
@@ -44,6 +49,14 @@ function validateAddresses(addresses) {
     return errors;
 }
 
+/**
+ * Validates user inputs, including IDs and addresses.
+ *
+ * @param {string} userID - The user's ID
+ * @param {string} chainID - The chain's ID
+ * @param {string[]} addresses - An array of user inputted contract addresses
+ * @returns {{error: boolean, message: string}} An object indicating whether validation failed and an associated error message.
+ */
 function validateInputs(userID, chainID, addresses) {
     const validationErrors = [...validateIDs(userID, chainID), ...validateAddresses(addresses)];
 
@@ -56,7 +69,17 @@ function validateInputs(userID, chainID, addresses) {
     return { error: false }; // Both userID, chainID, and addresses are valid
 }
 
-// Function to save referenced addresses to the JSON database file
+
+// ------------------- Database Functions -------------------
+
+/**
+ * Saves user inputted addresses to the user database.
+ *
+ * @param {string} userID - The user's ID
+ * @param {string} chainID - The chain's ID
+ * @param {string[]} addresses - An array of user inputted contract addresses
+ * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
+ */
 function saveToUser(userID, chainID, addresses) {
     const validationResult = validateInputs(userID, chainID, addresses);
 
@@ -91,7 +114,14 @@ function saveToUser(userID, chainID, addresses) {
     return { error: false }; // No error occurred
 }
 
-// Function to remove addresses from the JSON database file
+/**
+ * Removes user inputted addresses from the user database file.
+ *
+ * @param {string} userID - The user's ID to remove addresses from.
+ * @param {string} chainID - The chain's ID to remove addresses from.
+ * @param {string[]} addresses - An array of addresses to be removed.
+ * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
+ */
 function removeFromUser(userID, chainID, addresses) {
     const validationResult = validateInputs(userID, chainID, addresses);
 
@@ -127,6 +157,8 @@ function removeFromUser(userID, chainID, addresses) {
 
 
 
+// ------------------- Test -------------------
+
 // Example usage
 const userId = "1";
 const chainId = "1";
@@ -141,6 +173,9 @@ const addressesToAdd = [
 
 // Add addresses to the user's chain
 // removeFromUser(userId, chainId, addressesToAdd);
+
+
+// ------------------- Module Exports -------------------
 
 module.exports = {
     saveToUser,
