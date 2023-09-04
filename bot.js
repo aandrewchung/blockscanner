@@ -3,6 +3,7 @@
 const { saveToUser, removeFromUser, addUser, removeUser } = require('./updatedatabase');
 const { continuouslyGetContracts, eventEmitter } = require('./latestblock'); 
 const { compareUserWithChain, logEmitter } = require('./compareuserchain'); 
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./databasefns.js');
 
 
 // ------------------- Imports -------------------
@@ -48,23 +49,130 @@ logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
 });
 
 
-// ------------------- Command Handlers -------------------
+// ------------------- Bot Buttons & /start -------------------
 
 // Command: /start
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
-    
+
     // Read the user database from the file
     let userDatabase = require('./databases/user_database_test.json');
-    
-    // Add the chat ID as a user ID
-    userDatabase[chatId.toString()] = {};
-    
-    // Write the updated user database back to the file
-    fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
-    
-    bot.sendMessage(chatId, 'Welcome! Your chat ID has been stored.');
+
+    // Check if the user ID already exists in the database
+    if (!userDatabase.hasOwnProperty(chatId.toString())) {
+        // If it doesn't exist, add the user ID as a new user
+        userDatabase[chatId.toString()] = {};
+
+        // Write the updated user database back to the file
+        fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
+    }
+
+    // Create an inline keyboard with the /removeaddress button
+    const startKeyboard = {
+        inline_keyboard: [[{ text: '/removeaddys', callback_data: 'removeaddys' }]],
+    };
+
+    const opts = {
+        reply_markup: startKeyboard,
+    };
+
+    bot.sendMessage(chatId, 'Welcome! Your chat ID has been stored. You can click the button below to remove addresses.', opts);
 });
+
+
+// Listen for inline keyboard button callbacks
+bot.on('callback_query', (query) => {
+    const chatId = query.message.chat.id;
+    const userID = chatId.toString(); // Convert chat ID to string
+    const data = query.data;
+
+    // Map chain names to their corresponding IDs
+    const chainMappings = {
+        ethereum: 1,
+        bsc: 2,
+        polygon: 3
+        // Add more chain names as needed
+    };
+
+    let userDatabase = loadUserDatabase();
+
+    if (data === 'removeaddys') {
+        // Create an array of chain buttons
+        const chainButtons = Object.keys(chainMappings).map((chainName) => ({
+            text: chainName,
+            callback_data: `removechain:${chainName}`,
+        }));
+
+        // Create an inline keyboard with chain buttons
+        const chainKeyboard = {
+            inline_keyboard: [chainButtons],
+        };
+
+        bot.sendMessage(chatId, 'Select a chain to remove an address from:', {
+            reply_markup: chainKeyboard,
+        });
+    } else if (data.startsWith('removechain:')) {
+        const selectedChain = data.split(':')[1];
+    
+        // Retrieve user addresses for the selected chain
+        const chainID = chainMappings[selectedChain]; // Get chain ID based on selectedChain
+    
+        const userAddresses = userDatabase[userID] && userDatabase[userID][chainID] ? userDatabase[userID][chainID].addresses : [];
+    
+        // Check if there are no addresses for the selected chain
+        if (userAddresses.length === 0) {
+            // Send a message indicating no recorded addresses
+            bot.sendMessage(chatId, `There are no recorded addresses for ${selectedChain}.`);
+        } else {
+            // Create an array of address buttons
+            const addressButtons = userAddresses.map((address) => ({
+                text: address,
+                callback_data: `removepoo:${selectedChain}:${address}`,
+            }));
+    
+            // Create an inline keyboard with address buttons
+            const addressKeyboard = {
+                inline_keyboard: [addressButtons],
+            };
+    
+            bot.sendMessage(chatId, `Select an address to remove from ${selectedChain}:`, {
+                reply_markup: addressKeyboard,
+            });
+    
+            // Handle the selected chain here
+            // bot.sendMessage(chatId, `You selected chain: ${selectedChain}`);
+        }
+    } else if (data.startsWith('removepoo:')) {
+        const selectedChain = data.split(':')[1];
+        const selectedAddress = data.split(':')[2];
+        const chainID = chainMappings[selectedChain]; // Get chain ID based on selectedChain
+        const selectedAddresses = [];
+
+        // Add the selected address to the array
+        selectedAddresses.push(selectedAddress);
+
+        // Call the removeAddressesFromUser function to remove the addresses
+        const result = removeFromUser(chatId, chainID, selectedAddresses);
+
+        if (result.error) {
+            bot.sendMessage(chatId, result.message); // Send the error message to the user
+        } else {
+            bot.sendMessage(chatId, `You selected to remove ${selectedAddress} from ${selectedChain}`);
+        }
+
+        // let updatedUserDatabase = loadUserDatabase();
+        // const userAddresses = updatedUserDatabase[userID] && updatedUserDatabase[userID][chainID] ? updatedUserDatabase[userID][chainID].addresses : [];
+        // console.log("lol", userAddresses);
+    }
+
+    // Answer the callback query to remove the loading indicator
+    bot.answerCallbackQuery(query.id);
+});
+
+
+
+
+// ------------------- User Command Handlers -------------------
 
 // Command: /addaddress [chain_name] [address1] [address2] ...
 bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
@@ -85,10 +193,10 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
     return;
   }
 
-  const chainId = chainMappings[chainName];
+  const chainID = chainMappings[chainName];
 
   // Call the saveToUser function to add the addresses
-  const result = saveToUser(msg.from.id.toString(), chainId, addresses);
+  const result = saveToUser(msg.from.id.toString(), chainID, addresses);
 
   if (result.error) {
     bot.sendMessage(chatId, result.message); // Send the error message to the user
@@ -116,10 +224,10 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
         return;
     }
 
-    const chainId = chainMappings[chainName];
+    const chainID = chainMappings[chainName];
 
     // Call the removeAddressesFromUser function to remove the addresses
-    const result = removeFromUser(msg.from.id.toString(), chainId, addresses);
+    const result = removeFromUser(chatId, chainID, addresses);
 
     if (result.error) {
         bot.sendMessage(chatId, result.message); // Send the error message to the user
@@ -128,6 +236,7 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
     }
 });
   
+// ------------------- Admin Command Handlers -------------------
 
 const adminChatIDs = ['5679047475', 'admin_chat_id_2', /* ... */];
 
@@ -137,15 +246,15 @@ bot.onText(/\/adduser (.+)/, (msg, match) => {
 
     // Check if the chat ID is included in the adminChatIDs array
     if (adminChatIDs.includes(chatId.toString())) {
-        const userId = match[1];
+        const userID = match[1];
 
         // Call the addUser function to add the user
-        const result = addUser(userId);
+        const result = addUser(userID);
 
         if (result.error) {
             bot.sendMessage(chatId, result.message); // Send the error message to the admin
         } else {
-            bot.sendMessage(chatId, `User ${userId} added successfully.`);
+            bot.sendMessage(chatId, `User ${userID} added successfully.`);
         }
     } else {
         bot.sendMessage(chatId, 'You are not authorized to use this command.');
@@ -158,28 +267,27 @@ bot.onText(/\/removeuser (.+)/, (msg, match) => {
 
     // Check if the chat ID is included in the adminChatIDs array
     if (adminChatIDs.includes(chatId.toString())) {
-        const userId = match[1];
+        const userID = match[1];
 
         // Call the removeUser function to remove the user
-        const result = removeUser(userId);
+        const result = removeUser(userID);
 
         if (result.error) {
             bot.sendMessage(chatId, result.message); // Send the error message to the admin
         } else {
-            bot.sendMessage(chatId, `User ${userId} removed successfully.`);
+            bot.sendMessage(chatId, `User ${userID} removed successfully.`);
         }
     } else {
         bot.sendMessage(chatId, 'You are not authorized to use this command.');
     }
 });
 
-
-
+// ------------------- Other Command Handlers -------------------
 
 // General message handler
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Received your message');
+//   bot.sendMessage(chatId, 'Received your message');
 });
 
 
