@@ -127,7 +127,7 @@ bot.on('callback_query', (query) => {
             // Create an array of address buttons
             const addressButtons = userAddresses.map((address) => ({
                 text: address,
-                callback_data: `removepoo:${selectedChain}:${address}`,
+                callback_data: `remaddy:${selectedChain}:${address}`,
             }));
     
             // Create an inline keyboard with address buttons
@@ -142,7 +142,7 @@ bot.on('callback_query', (query) => {
             // Handle the selected chain here
             // bot.sendMessage(chatId, `You selected chain: ${selectedChain}`);
         }
-    } else if (data.startsWith('removepoo:')) {
+    } else if (data.startsWith('remaddy:')) {
         const selectedChain = data.split(':')[1];
         const selectedAddress = data.split(':')[2];
         const chainID = chainMappings[selectedChain]; // Get chain ID based on selectedChain
@@ -168,9 +168,6 @@ bot.on('callback_query', (query) => {
     // Answer the callback query to remove the loading indicator
     bot.answerCallbackQuery(query.id);
 });
-
-
-
 
 // ------------------- User Command Handlers -------------------
 
