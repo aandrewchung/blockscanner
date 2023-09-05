@@ -55,8 +55,8 @@ logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
 
-    // Read the user database from the file
-    let userDatabase = require('./databases/user_database_test.json');
+    // Load the user database
+    let userDatabase = loadUserDatabase();
 
     // Check if the user ID already exists in the database
     if (!userDatabase.hasOwnProperty(chatId.toString())) {
@@ -67,9 +67,12 @@ bot.onText(/\/start/, (msg) => {
         fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
     }
 
-    // Create an inline keyboard with the /removeaddress button
+    // Create an inline keyboard with the /removeaddys and /removeuser buttons
     const startKeyboard = {
-        inline_keyboard: [[{ text: '/removeaddys', callback_data: 'removeaddys' }]],
+        inline_keyboard: [
+            [{ text: 'Remove User', callback_data: 'removeuser' }],
+            [{ text: 'Remove Address', callback_data: 'removeaddys' }],
+        ],
     };
 
     const opts = {
@@ -164,6 +167,43 @@ bot.on('callback_query', (query) => {
         // const userAddresses = updatedUserDatabase[userID] && updatedUserDatabase[userID][chainID] ? updatedUserDatabase[userID][chainID].addresses : [];
         // console.log("lol", userAddresses);
     }
+
+    if (data === 'removeuser') {
+        // Create an array of user buttons based on the keys in the userDatabase
+        const userButtons = Object.keys(userDatabase).map((userID) => ({
+            text: userID,
+            callback_data: `removeuser:${userID}`,
+        }));
+    
+        // Split the userButtons array into rows of 4 buttons per row
+        const rows = [];
+        for (let i = 0; i < userButtons.length; i += 4) {
+            rows.push(userButtons.slice(i, i + 4));
+        }
+    
+        // Create an inline keyboard with user buttons arranged in rows
+        const userKeyboard = {
+            inline_keyboard: rows,
+        };
+    
+        bot.sendMessage(chatId, 'Select a user to remove:', {
+            reply_markup: userKeyboard,
+        });
+    } else if (data.startsWith('removeuser:')) {
+        // Handle the removal of the selected user
+        const selectedUserID = data.split(':')[1];
+
+        // Call the removeUser function to remove the user
+        const result = removeUser(selectedUserID);
+
+        if (result.error) {
+            bot.sendMessage(chatId, result.message); // Send the error message to the admin
+        } else {
+            bot.sendMessage(chatId, `User ${selectedUserID} removed successfully.`);
+        }
+    }
+    
+    
 
     // Answer the callback query to remove the loading indicator
     bot.answerCallbackQuery(query.id);
