@@ -50,6 +50,7 @@ logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
 
 
 // ------------------- Bot Buttons & /start -------------------
+const adminChatIDs = ['5679047475', 'admin_chat_id_2', /* ... */];
 
 // Command: /start
 bot.onText(/\/start/, (msg) => {
@@ -67,13 +68,18 @@ bot.onText(/\/start/, (msg) => {
         fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
     }
 
-    // Create an inline keyboard with the /removeaddys and /removeuser buttons
+    // Create an inline keyboard with the /removeaddys button
     const startKeyboard = {
         inline_keyboard: [
-            [{ text: 'Remove User', callback_data: 'removeuser' }],
-            [{ text: 'Remove Address', callback_data: 'removeaddys' }],
+            [{ text: 'Remove Address', callback_data: 'removeaddys' }]
         ],
     };
+
+    // Check if the chat ID is included in the adminChatIDs array
+    if (adminChatIDs.includes(chatId.toString())) {
+        // Add the "Remove User" button to the front of the inline keyboard
+        startKeyboard.inline_keyboard.unshift([{ text: 'Remove User', callback_data: 'removeuser' }]);
+    }
 
     const opts = {
         reply_markup: startKeyboard,
@@ -274,8 +280,6 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
 });
   
 // ------------------- Admin Command Handlers -------------------
-
-const adminChatIDs = ['5679047475', 'admin_chat_id_2', /* ... */];
 
 // Command: /adduser [userID]
 bot.onText(/\/adduser (.+)/, (msg, match) => {
