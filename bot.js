@@ -68,17 +68,17 @@ bot.onText(/\/start/, (msg) => {
         fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
     }
 
-    // Create an inline keyboard with the /removeaddys button
+    // Create an inline keyboard with the /removeaddys button with a thumbs-up emoji
     const startKeyboard = {
         inline_keyboard: [
-            [{ text: 'Remove Address', callback_data: 'removeaddys' }]
+            [{ text: 'Remove Address 📄→🗑️', callback_data: 'removeaddys' }]
         ],
     };
 
     // Check if the chat ID is included in the adminChatIDs array
     if (adminChatIDs.includes(chatId.toString())) {
         // Add the "Remove User" button to the front of the inline keyboard
-        startKeyboard.inline_keyboard.unshift([{ text: 'Remove User', callback_data: 'removeuser' }]);
+        startKeyboard.inline_keyboard.unshift([{ text: 'Remove User 👤→🗑️', callback_data: 'removeuser' }]);
     }
 
     const opts = {
