@@ -16,15 +16,29 @@ const {loadUserDatabase} = require('./databasefns.js');
 function validateIDs(userID, chainID) {
     const parsedUserID = parseInt(userID);
     const parsedChainID = parseInt(chainID);
+
+    const data = loadUserDatabase();
     
+    if (!data) {
+        return ['Database is empty.'];
+    }
+
     const errors = [];
 
     if (isNaN(parsedUserID)) {
-        errors.push(`Invalid userID: ${parsedUserID}`);
+        errors.push(`Invalid userID: ${userID}`);
+    }
+
+    if (!data[userID]) {
+        errors.push(`User with ID ${userID} does not exist.`);
     }
 
     if (isNaN(parsedChainID)) {
-        errors.push(`Invalid chainID: ${parsedChainID}`);
+        errors.push(`Invalid chainID: ${chainID}`);
+    }
+
+    if (!data[userID][chainID]) {
+        errors.push(`Chain with ID ${chainID} does not exist for userID ${userID}.`);
     }
 
     return errors;
@@ -123,15 +137,6 @@ function saveToUser(userID, chainID, addresses) {
  * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
  */
 function removeFromUser(userID, chainID, addresses) {
-    const validationResult = validateInputs(userID, chainID, addresses);
-
-    if (validationResult.error) {
-        // Use the error message from the validationResult
-        const errorMessage = validationResult.message;
-        console.log(errorMessage); // Log the error message to the console
-        return { error: true, message: errorMessage };
-    }
-
     const filePath = `databases/user_database_test.json`;
     let data = loadUserDatabase();
 
@@ -139,20 +144,27 @@ function removeFromUser(userID, chainID, addresses) {
         data = {};
     }
 
-    const userData = data[userID] || {};
-    const chainData = userData[chainID] || {};
-
+    const userData = data[userID];
+    const chainData = userData[chainID];
     chainData.addresses = chainData.addresses || [];
 
-    // Remove addresses from the chain's addresses array
-    chainData.addresses = chainData.addresses.filter(address => !addresses.includes(address));
-    
-    userData[chainID] = chainData;
-    data[userID] = userData;
+    // Filter addresses that exist in the chain's addresses array
+    const filteredAddresses = chainData.addresses.filter(address => !addresses.includes(address));
 
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    // Check if any addresses were removed
+    if (chainData.addresses.length !== filteredAddresses.length) {
+        chainData.addresses = filteredAddresses;
+        userData[chainID] = chainData;
+        data[userID] = userData;
 
-    return { error: false }; // No error occurred
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+        return { error: false }; // No error occurred
+    } else {
+        const nonExistentAddresses = addresses.filter(address => !chainData.addresses.includes(address));
+        const errorMessage = `The following addresses do not exist in the chain: ${nonExistentAddresses.join(', ')}`;
+        return { error: true, message: errorMessage };
+    }
 }
 
 // ------------------- User Database Functions -------------------
