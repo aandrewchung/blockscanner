@@ -50,7 +50,7 @@ logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
 
 
 // ------------------- Bot Buttons & /start -------------------
-const adminChatIDs = ['5679047475', 'admin_chat_id_2', /* ... */];
+const adminChatIDs = ['5679047475', '-922234068', /* ... */];
 
 // Command: /start
 bot.onText(/\/start/, (msg) => {
@@ -239,7 +239,7 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
   const chainID = chainMappings[chainName];
 
   // Call the saveToUser function to add the addresses
-  const result = saveToUser(msg.from.id.toString(), chainID, addresses);
+  const result = saveToUser(chatId, chainID, addresses);
 
   if (result.error) {
     bot.sendMessage(chatId, result.message); // Send the error message to the user
