@@ -17,11 +17,11 @@ function validateIDs(userID, chainID) {
     const parsedUserID = parseInt(userID);
     const parsedChainID = parseInt(chainID);
 
-    const data = loadUserDatabase();
+    // const data = loadUserDatabase();
     
-    if (!data) {
-        return ['Database is empty.'];
-    }
+    // if (!data) {
+    //     return ['Database is empty.'];
+    // }
 
     const errors = [];
 
@@ -29,17 +29,17 @@ function validateIDs(userID, chainID) {
         errors.push(`Invalid userID: ${userID}`);
     }
 
-    if (!data[userID]) {
-        errors.push(`User with ID ${userID} does not exist.`);
-    }
+    // if (!data[userID]) {
+    //     errors.push(`User with ID ${userID} does not exist.`);
+    // }
 
     if (isNaN(parsedChainID)) {
         errors.push(`Invalid chainID: ${chainID}`);
     }
 
-    if (!data[userID][chainID]) {
-        errors.push(`Chain with ID ${chainID} does not exist for userID ${userID}.`);
-    }
+    // if (!data[userID][chainID]) {
+    //     errors.push(`Chain with ID ${chainID} does not exist for userID ${userID}.`);
+    // }
 
     return errors;
 }
