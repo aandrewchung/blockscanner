@@ -335,4 +335,4 @@ bot.on('message', (msg) => {
 // ------------------- Continously Run Backend Fns -------------------
 
 // Call the continuouslyGetContracts() function
-// continuouslyGetContracts();
+continuouslyGetContracts();
