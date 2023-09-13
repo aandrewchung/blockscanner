@@ -16,6 +16,17 @@ require('dotenv').config(); // Load environment variables from .env file
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
+// ------------------- Global Var's -------------------
+
+
+// Map chain names to their corresponding IDs
+const chainMappings = {
+    ethereum: 1,
+    bsc: 2,
+    polygon: 3,
+    optimism: 4
+    // Add more chain names as needed
+};
 
 // ------------------- Event Listeners -------------------
 
@@ -94,14 +105,6 @@ bot.on('callback_query', (query) => {
     const chatId = query.message.chat.id;
     const userID = chatId.toString(); // Convert chat ID to string
     const data = query.data;
-
-    // Map chain names to their corresponding IDs
-    const chainMappings = {
-        ethereum: 1,
-        bsc: 2,
-        polygon: 3
-        // Add more chain names as needed
-    };
 
     let userDatabase = loadUserDatabase();
 
@@ -223,14 +226,6 @@ bot.onText(/\/addaddress (\S+) (.+)/, (msg, match) => {
   const chainName = match[1].toLowerCase(); // Convert chain name to lowercase
   const addresses = match[2].split(' ');
 
-  // Map chain names to their corresponding IDs
-  const chainMappings = {
-    ethereum: 1,
-    bsc: 2,
-    polygon: 3
-    // Add more chain names as needed
-  };
-
   if (!chainMappings.hasOwnProperty(chainName)) {
     bot.sendMessage(chatId, `Invalid chain name: ${chainName}`);
     return;
@@ -253,14 +248,6 @@ bot.onText(/\/removeaddress (\S+) (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
     const chainName = match[1].toLowerCase(); // Convert chain name to lowercase
     const addresses = match[2].split(' ');
-
-    // Map chain names to their corresponding IDs
-    const chainMappings = {
-        ethereum: 1,
-        bsc: 2,
-        polygon: 3
-        // Add more chain names as needed
-    };
 
     if (!chainMappings.hasOwnProperty(chainName)) {
         bot.sendMessage(chatId, 'Invalid chain name.');
