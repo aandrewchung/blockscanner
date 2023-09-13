@@ -111,11 +111,26 @@
       "addresses": [
         "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6"
       ]
+    },
+    "4": {
+      "addresses": [
+        "0xdFA46478F9e5EA86d57387849598dbFB2e964b02"
+      ]
     }
   },
   "-922234068": {
     "1": {
-      "addresses": []
+      "addresses": [
+        "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6"
+      ]
+    },
+    "4": {
+      "addresses": [
+        "0xdFA46478F9e5EA86d57387849598dbFB2e964b02",
+        "0x3F56e0c36d275367b8C502090EDF38289b3dEa0d",
+        "0xB1a8D1D6Dc07ca0e1E78a0004aa0bB034Fa73d60",
+        "0x8bEFba32E3f1b69b53Cf72D3114AFb1Ce1871878"
+      ]
     }
   }
 }
