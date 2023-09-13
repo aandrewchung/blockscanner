@@ -14,12 +14,17 @@ const chainConfigs = [
   {
     providerUrl: process.env.CHAIN2_PROVIDER_URL, //bsc
     waitBlocks: 200,
-    startBlock: 29855431 // Specify the desired start block for the chain
+    startBlock: 30955431 // Specify the desired start block for the chain
   },
   {
     providerUrl: process.env.CHAIN3_PROVIDER_URL, //polygon
     waitBlocks: 250,
-    startBlock: 44930645 // Specify the desired start block for the chain
+    startBlock: 47500000 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN4_PROVIDER_URL, //optimism
+    waitBlocks: 200,
+    startBlock: 109509999 // Specify the desired start block for the chain
   }
   // Add more chain configurations as needed
 ];
@@ -90,7 +95,9 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       }
 
       // Get the transactions from the block
+      // console.log(`Extracting from block ${latestBlockNumber}`)
       const transactions = block.transactions.filter(tx => tx.input !== '0x');
+      // console.log(`Successfully extracted transactions`)
 
       // Array to store the contract addresses
       const blockContractAddresses = [];
@@ -98,14 +105,28 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
 
       // Iterate through each transaction
       for (const transactionHash of transactions) {
-        // Get the transaction receipt
-        const receipt = await web3Instances[chainIndex].eth.getTransactionReceipt(transactionHash);
-        // Check if the transaction is a contract creation transaction
-        if (receipt && receipt.contractAddress) {
-          console.log(`Chain ${chainIndex + 1}: YESSIR`);
-          // Add the contract address to the array
-          blockContractAddresses.push(receipt.contractAddress);
-          txHashAddresses.push(transactionHash);
+        try { //txn receipt could have errors
+          // Get the transaction receipt
+          const receipt = await web3Instances[chainIndex].eth.getTransactionReceipt(transactionHash);
+          
+          // Check if the transaction receipt is null or undefined
+          if (!receipt) {
+            console.log(`Transaction ${transactionHash} does not exist for block ${latestBlockNumber}. Skipping.`);
+            continue; // Skip this transaction and move to the next one
+          }
+
+          // Check if the transaction is a contract creation transaction
+          if (receipt && receipt.contractAddress) {
+            console.log(`Chain ${chainIndex + 1}: YESSIR`);
+            // Add the contract address to the array
+            blockContractAddresses.push(receipt.contractAddress);
+            txHashAddresses.push(transactionHash);
+          }
+
+        } catch (error) {
+          console.error(`Error processing transaction ${transactionHash}:`, error);
+          // Continue to the next transaction even if an error occurs
+          continue;
         }
       }
 
@@ -125,8 +146,8 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       resolve(blockContractAddresses);
 
     } catch (error) {
-      console.error(`Chain ${chainIndex + 1}: Error getting contracts in block:`, error);
-      reject(error);
+      console.error(`Chain ${chainIndex + 1}: Error getting contracts in block ${latestBlockNumber}:`, error);
+      resolve([]); // or reject(error) if you want to propagate the error
     }
   });
 }
@@ -168,7 +189,9 @@ async function continuouslyGetContracts() {
             // Call the function to get the contracts in the block for the chain
             // ERROR: this should be a promise as well, since blocks could be processed concurrently
             const newContracts = await getContractsInBlock(i, block, contractAddresses);
-
+            if (!newContracts) {
+              continue;
+            }
             // Emit an event with the new contract addresses
             if (newContracts.length > 0) {
               
