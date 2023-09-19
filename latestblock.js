@@ -3,6 +3,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const { Web3 } = require('web3');
 const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
+const {loadChainDatabase, saveToChainDB} = require('./databasefns.js'); //imports from db fns
 
 // Array of chain configurations
 const chainConfigs = [
@@ -52,7 +53,6 @@ const chainConfigs = [
     startBlock: 4467088 // Specify the desired start block for the chain
   }
 
-  	
   // Add more chain configurations as needed
 ];
 
@@ -64,40 +64,6 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Function to save contract addresses to the JSON database file
-function saveToDatabase(chainIndex, blockNumber, contractAddresses, txHashAddresses) {
-  const filePath = `databases/chain${chainIndex + 1}_database.json`;
-  let data = loadFromDatabase(chainIndex);
-
-  if (!data) {
-    data = {};
-  }
-
-  if (!data[blockNumber]) {
-    data[blockNumber] = {};
-  }
-
-  for (let i = 0; i < contractAddresses.length; i++) {
-    const contractAddress = contractAddresses[i];
-    const txHash = txHashAddresses[i];
-    data[blockNumber][contractAddress] = txHash;
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  console.log(`Chain ${chainIndex + 1}: Block ${blockNumber} contracts saved to database.`);
-}
-
-// Function to load contract addresses from the JSON database file
-function loadFromDatabase(chainIndex) {
-  const filePath = `databases/chain${chainIndex + 1}_database.json`;
-
-  if (fs.existsSync(filePath)) {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  }
-
-  return null;
-}
 
 // Function to get the contracts created in a specific block for a chain
 async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddresses) {
@@ -168,7 +134,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
       contractAddresses.push(...blockContractAddresses);
 
       // Save block status and processing time to JSON file
-      saveToDatabase(chainIndex, latestBlockNumber, blockContractAddresses, txHashAddresses, processingTime);
+      saveToChainDB(chainIndex, latestBlockNumber, blockContractAddresses, txHashAddresses, processingTime);
 
       resolve(blockContractAddresses);
 
@@ -190,7 +156,7 @@ async function continuouslyGetContracts() {
         const web3Instance = web3Instances[i];
 
         // Load contracts and block status from the database
-        const blockStatus = loadFromDatabase(i);
+        const blockStatus = loadChainDatabase(i);
         let latestBlockNumber = await web3Instance.eth.getBlockNumber();
 
         // Set the latest block number to the start block if it is lower
@@ -230,7 +196,7 @@ async function continuouslyGetContracts() {
 
       await Promise.all(promises);
 
-      // Delay for a specific interval (set to 10 seconds)
+      // Delay for a specific interval (set to 1 second)
       await delay(1000);
 
     } catch (error) {
