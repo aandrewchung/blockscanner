@@ -25,7 +25,34 @@ const chainConfigs = [
     providerUrl: process.env.CHAIN4_PROVIDER_URL, //optimism
     waitBlocks: 200,
     startBlock: 109509999 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN5_PROVIDER_URL, //base
+    waitBlocks: 200,
+    startBlock: 4138502 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN6_PROVIDER_URL, //metis
+    waitBlocks: 200,
+    startBlock: 132324380 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN7_PROVIDER_URL, //avalanche c
+    waitBlocks: 200,
+    startBlock: 35376685 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN8_PROVIDER_URL, //gnosis
+    waitBlocks: 200,
+    startBlock: 30045837 // Specify the desired start block for the chain
+  },
+  {
+    providerUrl: process.env.CHAIN9_PROVIDER_URL, //moonbeam
+    waitBlocks: 200,
+    startBlock: 4467088 // Specify the desired start block for the chain
   }
+
+  	
   // Add more chain configurations as needed
 ];
 
@@ -124,7 +151,7 @@ async function getContractsInBlock(chainIndex, latestBlockNumber, contractAddres
           }
 
         } catch (error) {
-          console.error(`Error processing transaction ${transactionHash}:`, error);
+          console.error(`Error processing transaction ${transactionHash} on chain ${chainIndex + 1}:`, error);
           // Continue to the next transaction even if an error occurs
           continue;
         }

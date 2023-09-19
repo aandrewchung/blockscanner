@@ -24,8 +24,12 @@ const chainMappings = {
     ethereum: 1,
     bsc: 2,
     polygon: 3,
-    optimism: 4
-    // Add more chain names as needed
+    optimism: 4,
+    base: 5,
+    metis: 6, 
+    avalanche: 7,
+    gnosis: 8,
+    moonbeam: 9,
 };
 
 // ------------------- Event Listeners -------------------
@@ -110,14 +114,25 @@ bot.on('callback_query', (query) => {
 
     if (data === 'removeaddys') {
         // Create an array of chain buttons
-        const chainButtons = Object.keys(chainMappings).map((chainName) => ({
-            text: chainName,
-            callback_data: `removechain:${chainName}`,
-        }));
+        const chainNames = Object.keys(chainMappings);
 
+        // Split the chainNames array into groups of three
+        const chainGroups = [];
+        for (let i = 0; i < chainNames.length; i += 3) {
+            chainGroups.push(chainNames.slice(i, i + 3));
+        }
+        
+        // Create buttons for each chain group
+        const chainButtons = chainGroups.map((group) =>
+            group.map((chainName) => ({
+                text: chainName,
+                callback_data: `removechain:${chainName}`,
+            }))
+        );
+        
         // Create an inline keyboard with chain buttons
         const chainKeyboard = {
-            inline_keyboard: [chainButtons],
+            inline_keyboard: chainButtons,
         };
 
         bot.sendMessage(chatId, 'Select a chain to remove an address from:', {
