@@ -1,9 +1,9 @@
 // ------------------ Import Functions From Other Files -------------------
 
-const { saveToUser, removeFromUser, addUser, removeUser } = require('./scripts/updateuserdb.js');
-const { continuouslyGetContracts, eventEmitter } = require('./scripts/latestblock.js'); 
-const { compareUserWithChain, logEmitter } = require('./scripts/compareuserchain.js'); 
-const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./scripts/databasefns.js');
+const { saveToUser, removeFromUser, addUser, removeUser } = require('./scripts/dbscripts/updateuserdb.js');
+const { continuouslyGetContracts, eventEmitter } = require('./scripts/backend/latestblock.js'); 
+const { compareUserWithChain, logEmitter } = require('./scripts/backend/compareuserchain.js'); 
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./scripts/dbscripts/databasefns.js');
 
 
 // ------------------- Imports -------------------

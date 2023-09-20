@@ -1,5 +1,5 @@
-const { continuouslyGetContracts, eventEmitter } = require('../latestblock.js'); 
-const { compareUserWithChain } = require('../compareuserchain.js');
+const { continuouslyGetContracts, eventEmitter } = require('../backend/latestblock.js'); 
+const { compareUserWithChain } = require('../backend/compareuserchain.js');
 
 let eventCounter = 0;
 

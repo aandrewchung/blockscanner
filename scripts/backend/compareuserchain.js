@@ -10,7 +10,7 @@ const providerUrl = process.env.CHAIN1_PROVIDER_URL;
 const web3 = new Web3(providerUrl);
 
 // Import functions from other files
-const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./databasefns.js');
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('../dbscripts/databasefns.js');
 const { readContractBytecode } = require('./contractbytecode.js');
 const { getUniqueAddressesForChainA, getUniqueAddressesForChainB } = require('./useraddress.js');   
 
@@ -114,10 +114,6 @@ module.exports = {
     compareUserWithChain,
     // ... (other exported functions)
 };
-
-
-
-
 
 // // Example usage
 // const chainIndex = 1;

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabase} = require('./databasefns.js');
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToDatabase} = require('../dbscripts/databasefns.js');
 
 //UNIQUE ADDRESS FUNCTIONS
 function getUniqueAddressesForChainA(data, chainIndex) {

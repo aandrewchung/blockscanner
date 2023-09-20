@@ -2,7 +2,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const { Web3 } = require('web3');
 const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
-const {loadChainDatabase, saveToChainDB} = require('./databasefns.js'); //imports from db fns
+const {loadChainDatabase, saveToChainDB} = require('../dbscripts/databasefns.js'); //imports from db fns
 
 // Array of chain configurations
 const chainConfigs = [
