@@ -16,7 +16,7 @@ function loadUserDatabase() {
 
 // Function to load contract addresses from the JSON database file
 function loadChainDatabase(chainIndex) {
-    const filePath = `databases/chain${chainIndex+1}_database.json`;
+    const filePath = `databases/chains/chain${chainIndex+1}_database.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -66,7 +66,7 @@ function saveToUserChainDatabase(chainIndex, blockNumber, contractAddress, userA
 
 // Function to save contract addresses to the JSON database file
 function saveToChainDB(chainIndex, blockNumber, contractAddresses, txHashAddresses) {
-    const filePath = `databases/chain${chainIndex + 1}_database.json`;
+    const filePath = `databases/chains/chain${chainIndex + 1}_database.json`;
     let data = loadChainDatabase(chainIndex);
   
     if (!data) {
