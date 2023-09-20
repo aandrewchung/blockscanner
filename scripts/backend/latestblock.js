@@ -51,6 +51,12 @@ const chainConfigs = [
     waitBlocks: 25,
     // startBlock: 4467088 // Specify the desired start block for the chain
   }
+  ,
+  {
+    providerUrl: process.env.CHAIN10_PROVIDER_URL, //arbitrum
+    waitBlocks: 25,
+    // startBlock: 132936736 // Specify the desired start block for the chain
+  }
 
   // Add more chain configurations as needed
 ];

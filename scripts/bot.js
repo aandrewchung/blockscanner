@@ -30,6 +30,7 @@ const chainMappings = {
     avalanche: 7,
     gnosis: 8,
     moonbeam: 9,
+    arbitrum: 10,
 };
 
 // ------------------- Event Listeners -------------------
