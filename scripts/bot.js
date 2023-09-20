@@ -29,7 +29,7 @@ const chainMappings = {
     metis: 6, 
     avalanche: 7,
     gnosis: 8,
-    // moonbeam: 9,
+    moonbeam: 9,
 };
 
 // ------------------- Event Listeners -------------------

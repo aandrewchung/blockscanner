@@ -46,11 +46,11 @@ const chainConfigs = [
     waitBlocks: 25,
     // startBlock: 30045837 // Specify the desired start block for the chain
   },
-  // {
-  //   providerUrl: process.env.CHAIN9_PROVIDER_URL, //moonbeam
-  //   waitBlocks: 25,
-  //   // startBlock: 4467088 // Specify the desired start block for the chain
-  // }
+  {
+    providerUrl: process.env.CHAIN9_PROVIDER_URL, //moonbeam
+    waitBlocks: 25,
+    // startBlock: 4467088 // Specify the desired start block for the chain
+  }
 
   // Add more chain configurations as needed
 ];
