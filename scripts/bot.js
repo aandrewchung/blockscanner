@@ -1,9 +1,9 @@
 // ------------------ Import Functions From Other Files -------------------
 
-const { saveToUser, removeFromUser, addUser, removeUser } = require('./scripts/dbscripts/updateuserdb.js');
-const { continuouslyGetContracts, eventEmitter } = require('./scripts/backend/latestblock.js'); 
-const { compareUserWithChain, logEmitter } = require('./scripts/backend/compareuserchain.js'); 
-const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./scripts/dbscripts/databasefns.js');
+const { saveToUser, removeFromUser, addUser, removeUser } = require('./dbscripts/updateuserdb.js');
+const { continuouslyGetContracts, eventEmitter } = require('./backend/latestblock.js'); 
+const { compareUserWithChain, logEmitter } = require('./backend/compareuserchain.js'); 
+const {loadUserDatabase, loadChainDatabase, loadUserChainDatabase, saveToUserChainDatabase} = require('./dbscripts/databasefns.js');
 
 
 // ------------------- Imports -------------------
@@ -50,7 +50,7 @@ eventEmitter.on('newContracts', ({ contracts, chainIndex, blockNumber }) => {
 // Attach an event listener for the 'logMessage' event
 logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
     // Read the user database from the file
-    let userDatabase = require('./databases/user_database.json');
+    let userDatabase = require('../databases/user_database.json');
     
     // Iterate through user IDs and send the log message to users with the specified inputAddress and chainIndex
     for (const userID in userDatabase) {
