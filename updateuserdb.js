@@ -104,7 +104,7 @@ function saveToUser(userID, chainID, addresses) {
         return { error: true, message: errorMessage };
     }
 
-    const filePath = `databases/user_database_test.json`;
+    const filePath = `databases/user_database.json`;
     let data = loadUserDatabase();
 
     if (!data) {
@@ -137,7 +137,7 @@ function saveToUser(userID, chainID, addresses) {
  * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
  */
 function removeFromUser(userID, chainID, addresses) {
-    const filePath = `databases/user_database_test.json`;
+    const filePath = `databases/user_database.json`;
     let data = loadUserDatabase();
 
     if (!data) {
@@ -175,7 +175,7 @@ function removeFromUser(userID, chainID, addresses) {
  * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
  */
 function addUser(userID) {
-    const filePath = `databases/user_database_test.json`;
+    const filePath = `databases/user_database.json`;
     let data = loadUserDatabase();
 
     if (!data) {
@@ -200,7 +200,7 @@ function addUser(userID) {
  * @returns {{error: boolean, message: string}} An object indicating whether the operation failed and an associated error message.
  */
 function removeUser(userID) {
-    const filePath = `databases/user_database_test.json`;
+    const filePath = `databases/user_database.json`;
     let data = loadUserDatabase();
 
     if (!data) {

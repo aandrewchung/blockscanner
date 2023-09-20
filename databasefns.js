@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Function to load user data from the JSON database file
 function loadUserDatabase() {
-    const filePath = `databases/user_database_test.json`;
+    const filePath = `databases/user_database.json`;
   
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');

@@ -50,7 +50,7 @@ eventEmitter.on('newContracts', ({ contracts, chainIndex, blockNumber }) => {
 // Attach an event listener for the 'logMessage' event
 logEmitter.on('logMessage', ({ logMessage, chainIndex, inputAddress }) => {
     // Read the user database from the file
-    let userDatabase = require('./databases/user_database_test.json');
+    let userDatabase = require('./databases/user_database.json');
     
     // Iterate through user IDs and send the log message to users with the specified inputAddress and chainIndex
     for (const userID in userDatabase) {
@@ -80,7 +80,7 @@ bot.onText(/\/start/, (msg) => {
         userDatabase[chatId.toString()] = {};
 
         // Write the updated user database back to the file
-        fs.writeFileSync('./databases/user_database_test.json', JSON.stringify(userDatabase, null, 2));
+        fs.writeFileSync('./databases/user_database.json', JSON.stringify(userDatabase, null, 2));
     }
 
     // Create an inline keyboard with the /removeaddys button with a thumbs-up emoji
